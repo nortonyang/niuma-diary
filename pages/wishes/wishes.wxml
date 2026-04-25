@@ -1,0 +1,75 @@
+<view class="page wishes-page">
+  <view class="page-header">
+    <view class="header-row">
+      <text class="brand-label">退路备忘录</text>
+      <text class="count-badge">{{wishCountText}}</text>
+    </view>
+    <text class="header-copy">如果有一天离开这里，你最想先做什么？</text>
+    <text class="cloud-status" wx:if="{{cloudSyncText}}">{{cloudSyncText}}</text>
+  </view>
+
+  <view class="hero-card section">
+    <text class="hero-title">先记最想做的 3 件事</text>
+    <text class="hero-copy">{{heroHint}}</text>
+  </view>
+
+  <view class="wish-list" wx:if="{{hasWishes}}">
+    <view class="wish-card" wx:for="{{wishes}}" wx:key="id">
+      <view class="wish-top">
+        <text class="wish-tag">{{item.categoryLabel}}</text>
+        <view class="wish-actions">
+          <text data-id="{{item.id}}" bindtap="openEdit">编辑</text>
+          <text data-id="{{item.id}}" bindtap="removeWish">删除</text>
+        </view>
+      </view>
+      <text class="wish-title">{{item.title}}</text>
+      <text class="wish-meta">{{item.costText}}</text>
+      <text class="wish-step">{{item.stepText}}</text>
+    </view>
+  </view>
+
+  <view class="empty-card section" wx:else>
+    <text class="empty-title">还没有愿望</text>
+    <text class="empty-copy">可以先写“睡到自然醒一周”，也可以写“准备转行三个月”。</text>
+  </view>
+
+  <button class="primary-button add-button" bindtap="openCreate" disabled="{{limitReached}}">
+    {{addButtonText}}
+  </button>
+
+  <view class="editor-mask" wx:if="{{showEditor}}" bindtap="closeEditor">
+    <view class="editor-panel" catchtap="noop">
+      <view class="editor-head">
+        <view>
+          <text class="editor-title">{{form.editorTitle}}</text>
+          <text class="editor-copy">把想做的事先写下来，后面再慢慢补预算和第一步。</text>
+        </view>
+        <text class="close-text" bindtap="closeEditor">关闭</text>
+      </view>
+
+      <view class="field">
+        <text class="label">标题</text>
+        <input class="input" value="{{form.title}}" maxlength="24" placeholder="例如：去云南住一个月" bindinput="onTitleInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">分类</text>
+        <picker value="{{form.categoryIndex}}" range="{{categoryLabels}}" bindchange="onCategoryChange">
+          <view class="picker-shell">{{categoryLabels[form.categoryIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="label">预计花费</text>
+        <input class="input" value="{{form.estimatedCost}}" type="digit" placeholder="可选" bindinput="onCostInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">第一小步</text>
+        <input class="input" value="{{form.firstStep}}" maxlength="32" placeholder="例如：先查路线和预算" bindinput="onStepInput" />
+      </view>
+
+      <button class="primary-button editor-save" bindtap="saveWish">保存愿望</button>
+    </view>
+  </view>
+</view>

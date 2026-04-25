@@ -1,0 +1,33 @@
+<view class="page doc-page">
+  <view class="page-header">
+    <text class="brand-label">留马</text>
+    <text class="header-copy">每天都想走，但先记一下。</text>
+  </view>
+
+  <view class="hero-card section">
+    <text class="hero-title">先记录，再决定</text>
+    <text class="hero-copy">这是一个面向职场人的轻量情绪记录和离职准备工具。它不鼓励冲动辞职，而是帮你把情绪、原因和退路先放到桌面上。</text>
+  </view>
+
+  <view class="doc-card section">
+    <view class="doc-item">
+      <text class="doc-title">产品定位</text>
+      <text class="doc-text">留马帮助用户记录每天为什么累、忍住赚了多少钱，以及离开后最想做什么。核心目标是让记录更轻，让决定更冷静。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">当前版本</text>
+      <text class="doc-text">当前版本聚焦今日打卡、班味日历、离开后愿望、收入换算、本地存储、脱敏分享卡、离职冷静器和准备清单。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">暂不提供</text>
+      <text class="doc-text">MVP 阶段暂不提供社区、账号体系、AI 聊天、付费功能、法律建议、财务建议、医疗建议或职业咨询服务。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">使用原则</text>
+      <text class="doc-text">先记录，再决定。先准备退路，再做选择。今天情绪很满，明天再看一遍。</text>
+    </view>
+  </view>
+</view>

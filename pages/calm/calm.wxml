@@ -1,0 +1,75 @@
+<view class="page calm-page">
+  <view class="page-header">
+    <text class="brand-label">离职冷静器</text>
+    <text class="header-copy">先把冲动拆成准备状态，别让临时情绪替你做决定。</text>
+  </view>
+
+  <view class="hero-card section">
+    <view class="hero-top">
+      <view>
+        <text class="hero-title">最近 14 天</text>
+        <text class="hero-copy">{{pressureSummary}}</text>
+      </view>
+      <text class="hero-badge">{{highPressureDays}} 天高压</text>
+    </view>
+
+    <view class="pressure-row">
+      <text class="pressure-value">{{pressurePercent}}%</text>
+      <view class="pressure-copy-wrap">
+        <text class="pressure-note">高压按班味指数不低于 80 计算。</text>
+      </view>
+    </view>
+
+    <view class="pressure-bar">
+      <view class="pressure-fill" style="width: {{pressurePercent}}%;"></view>
+    </view>
+  </view>
+
+  <view class="question-card section">
+    <text class="section-title">先回答几个问题</text>
+
+    <view class="field">
+      <text class="label">这个念头持续了多久？</text>
+      <picker value="{{durationIndex}}" range="{{durationOptions}}" bindchange="onDurationChange">
+        <view class="picker-shell">{{durationOptions[durationIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">当前存款能撑多久？</text>
+      <picker value="{{runwayIndex}}" range="{{runwayOptions}}" bindchange="onRunwayChange">
+        <view class="picker-shell">{{runwayOptions[runwayIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="switch-list">
+      <view class="switch-row" data-key="hasNextIncome" bindtap="toggleFlag">
+        <text class="switch-label">已有下家或稳定收入来源</text>
+        <text class="switch-dot {{hasNextIncomeClass}}">{{hasNextIncomeText}}</text>
+      </view>
+      <view class="switch-row" data-key="hasPendingBenefits" bindtap="toggleFlag">
+        <text class="switch-label">年终奖、绩效、期权或竞业还没处理</text>
+        <text class="switch-dot {{hasPendingBenefitsClass}}">{{hasPendingBenefitsText}}</text>
+      </view>
+      <view class="switch-row" data-key="resumeUpdated" bindtap="toggleFlag">
+        <text class="switch-label">简历已经更新</text>
+        <text class="switch-dot {{resumeUpdatedClass}}">{{resumeUpdatedText}}</text>
+      </view>
+      <view class="switch-row" data-key="clearPlan" bindtap="toggleFlag">
+        <text class="switch-label">离职后计划比较明确</text>
+        <text class="switch-dot {{clearPlanClass}}">{{clearPlanText}}</text>
+      </view>
+      <view class="switch-row" data-key="suddenEvent" bindtap="toggleFlag">
+        <text class="switch-label">主要来自今天的突发事件</text>
+        <text class="switch-dot {{suddenEventClass}}">{{suddenEventText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="result-card section">
+    <text class="result-label">当前准备状态</text>
+    <text class="result-title">{{result.title}}</text>
+    <text class="result-copy">{{result.copy}}</text>
+    <button class="secondary-button result-button" bindtap="openChecklist">打开准备清单</button>
+  </view>
+</view>

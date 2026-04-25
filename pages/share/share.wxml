@@ -1,0 +1,127 @@
+<view class="page share-page">
+  <view class="page-header">
+    <text class="brand-label">分享卡片</text>
+    <text class="header-copy">{{pageHint}}</text>
+  </view>
+
+  <view class="hero-card section">
+    <view class="hero-top">
+      <view>
+        <text class="hero-title">{{cardTitle}}</text>
+        <text class="hero-copy">{{cardHint}}</text>
+      </view>
+      <text class="hero-badge">{{previewBadge}}</text>
+    </view>
+
+    <view class="mode-row">
+      <view class="mode-pill {{moodModeClass}}" bindtap="redrawMood">指数卡</view>
+      <view class="mode-pill {{incomeModeClass}}" bindtap="redrawIncome">赚钱卡</view>
+    </view>
+  </view>
+
+  <view class="preview-card section">
+    <view class="share-card-shell">
+      <image
+        class="share-card-image"
+        src="{{cardImage}}"
+        mode="widthFix"
+      />
+      <view wx:if="{{isMoodCard}}" class="mood-dynamic-layer">
+        <view class="mood-scene {{moodSceneClass}}">
+          <view class="mood-sun"></view>
+          <view class="mood-hill mood-hill-back"></view>
+          <view class="mood-hill mood-hill-front"></view>
+          <view class="mood-cloud mood-cloud-main">
+            <view class="cloud-puff cloud-puff-a"></view>
+            <view class="cloud-puff cloud-puff-b"></view>
+            <view class="cloud-puff cloud-puff-c"></view>
+            <view class="cloud-puff cloud-puff-d"></view>
+          </view>
+          <view class="mood-cloud mood-cloud-small">
+            <view class="cloud-puff cloud-puff-a"></view>
+            <view class="cloud-puff cloud-puff-b"></view>
+            <view class="cloud-puff cloud-puff-c"></view>
+          </view>
+          <view class="mood-lightning"></view>
+          <view class="mood-rain">
+            <view class="rain-line rain-one"></view>
+            <view class="rain-line rain-two"></view>
+            <view class="rain-line rain-three"></view>
+            <view class="rain-line rain-four"></view>
+          </view>
+        </view>
+        <view class="mood-status-shell">
+          <view class="mood-status-pill" style="background: {{moodVisual.pillBg}}; color: {{moodVisual.textColor}};">
+            {{moodVisual.statusText}}
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{isIncomeCard}}" class="income-dynamic-layer">
+        <view class="income-clean-cover"></view>
+        <view class="income-status-pill">今天没裸辞</view>
+        <view class="income-scene">
+          <view class="income-ray income-ray-left"></view>
+          <view class="income-ray income-ray-mid"></view>
+          <view class="income-ray income-ray-right"></view>
+          <view class="income-grass income-grass-back"></view>
+          <view class="income-grass income-grass-front"></view>
+          <view class="income-sprout">
+            <view class="income-stem"></view>
+            <view class="income-leaf income-leaf-left"></view>
+            <view class="income-leaf income-leaf-right"></view>
+          </view>
+        </view>
+        <view class="income-banner">牛马续航中</view>
+        <view class="income-progress">
+          <view class="income-progress-line"></view>
+          <view class="income-step income-step-one active">
+            <view class="step-sprout">
+              <view class="step-stem"></view>
+              <view class="step-leaf left"></view>
+              <view class="step-leaf right"></view>
+            </view>
+          </view>
+          <view class="income-step income-step-two active">
+            <view class="step-clover">
+              <view class="clover-leaf clover-a"></view>
+              <view class="clover-leaf clover-b"></view>
+              <view class="clover-leaf clover-c"></view>
+              <view class="clover-leaf clover-d"></view>
+            </view>
+          </view>
+          <view class="income-step income-step-three active">
+            <view class="step-flower">
+              <view class="flower-petal flower-horizontal"></view>
+              <view class="flower-petal flower-vertical"></view>
+              <view class="flower-core"></view>
+            </view>
+          </view>
+          <view class="income-step income-step-four">
+            <view class="step-tree">
+              <view class="tree-crown"></view>
+              <view class="tree-trunk"></view>
+            </view>
+          </view>
+        </view>
+        <view class="income-copy-line">离自由更近一点</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-stack section">
+    <button
+      wx:if="{{actionButtonImage}}"
+      class="image-action-button"
+      loading="{{actionLoading}}"
+      disabled="{{actionLoading}}"
+      bindtap="handlePrimaryAction"
+    >
+      <image class="image-action-bg" src="{{actionButtonImage}}" mode="aspectFit" />
+    </button>
+    <button wx:else class="primary-button share-action-button" loading="{{actionLoading}}" disabled="{{actionLoading}}" bindtap="handlePrimaryAction">
+      {{primaryButtonText}}
+    </button>
+  </view>
+
+  <canvas canvas-id="sharePosterCanvas" class="poster-canvas"></canvas>
+</view>

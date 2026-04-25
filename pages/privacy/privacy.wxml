@@ -1,0 +1,33 @@
+<view class="page doc-page">
+  <view class="page-header">
+    <text class="brand-label">隐私政策</text>
+    <text class="header-copy">MVP 阶段默认本地存储，不强制登录；启用云开发后，正式数据会同步到云端。</text>
+  </view>
+
+  <view class="hero-card section">
+    <text class="hero-title">默认先保存在当前设备</text>
+    <text class="hero-copy">打卡记录、愿望、月薪和偏好设置默认保存在微信小程序本地存储中。启用云开发后，正式数据会同步到云数据库；草稿仍只保存在本机。</text>
+  </view>
+
+  <view class="doc-card section">
+    <view class="doc-item">
+      <text class="doc-title">存储方式</text>
+      <text class="doc-text">当前版本不需要登录。未启用云开发时，打卡、愿望、月薪和偏好设置仅保存在当前设备；启用云开发后，正式数据会同步到云端，便于多端恢复。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">分享内容</text>
+      <text class="doc-text">默认分享图只展示产品名、今日班味状态和分享文案，不展示吐槽原文和月薪。用户主动保存或转发图片时，请自行确认内容。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">清空数据</text>
+      <text class="doc-text">可以在“我的”页面清空本地数据。清空后，当前设备上的打卡记录、愿望、清单和设置会被删除。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">冷静提醒</text>
+      <text class="doc-text">本产品用于自我记录和情绪整理，不提供法律、财务、医疗、心理治疗或职业咨询服务，也不鼓励冲动辞职。</text>
+    </view>
+  </view>
+</view>

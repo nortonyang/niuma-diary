@@ -1,0 +1,223 @@
+.me-page {
+  padding-top: 34rpx;
+  padding-bottom: 72rpx;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  padding: 30rpx;
+  border: 2rpx solid #ead7bd;
+  border-radius: 16rpx;
+  background: linear-gradient(140deg, #fffdf8 0%, #fff0d8 52%, #eaf5ef 100%);
+  box-shadow: 0 16rpx 38rpx rgba(81, 58, 31, 0.08);
+}
+
+.avatar-mark {
+  width: 112rpx;
+  height: 112rpx;
+  flex: 0 0 112rpx;
+  overflow: hidden;
+  border: 3rpx solid #ffffff;
+  border-radius: 22rpx;
+  box-shadow: 0 10rpx 22rpx rgba(60, 111, 100, 0.18);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.profile-main {
+  flex: 1;
+}
+
+.profile-name,
+.profile-copy,
+.summary-title,
+.summary-copy,
+.danger-copy {
+  display: block;
+}
+
+.profile-name {
+  color: #261f19;
+  font-size: 40rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.profile-copy {
+  margin-top: 10rpx;
+  color: #6f6254;
+  font-size: 25rpx;
+  line-height: 1.5;
+}
+
+.cloud-status {
+  display: block;
+  margin-top: 10rpx;
+  color: #7f7467;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.summary-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.summary-card {
+  min-width: 0;
+  min-height: 144rpx;
+  padding: 24rpx;
+  border: 2rpx solid #d8e8dd;
+  border-radius: 16rpx;
+  background: #f3faf6;
+}
+
+.summary-card.muted-card {
+  border-color: #ead7bd;
+  background: #fffdf8;
+}
+
+.summary-title {
+  color: #253b36;
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.summary-copy {
+  margin-top: 10rpx;
+  color: #6f6254;
+  font-size: 24rpx;
+  line-height: 1.55;
+}
+
+.settings-card,
+.shortcut-card,
+.danger-card {
+  padding: 28rpx;
+  border: 2rpx solid #ead7bd;
+  border-radius: 16rpx;
+  background: #fffdf8;
+}
+
+.section-title {
+  color: #2d2822;
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.settings-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.row-field {
+  flex: 1;
+}
+
+.save-settings {
+  margin-top: 30rpx;
+}
+
+.menu-list {
+  margin-top: 18rpx;
+  border-top: 2rpx solid #f0e2cf;
+}
+
+.menu-item {
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  border-bottom: 2rpx solid #f0e2cf;
+  color: #2d2822;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.menu-arrow {
+  color: #b2a393;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.danger-card {
+  border-color: #f0c9bf;
+  background: #fff8f6;
+}
+
+.danger-copy {
+  margin: 16rpx 0 22rpx;
+  color: #8f8172;
+  font-size: 25rpx;
+  line-height: 1.55;
+}
+
+.export-card {
+  border-color: #ead7bd;
+  background: #fffdf8;
+}
+
+.data-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+  margin-bottom: 22rpx;
+}
+
+.data-metric {
+  min-height: 116rpx;
+  padding: 20rpx;
+  border: 2rpx solid #d8e8dd;
+  border-radius: 14rpx;
+  background: #f3faf6;
+}
+
+.data-metric-value,
+.data-metric-label,
+.data-tip {
+  display: block;
+}
+
+.data-metric-value {
+  color: #253b36;
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.data-metric-label {
+  margin-top: 8rpx;
+  color: #7f7467;
+  font-size: 23rpx;
+  line-height: 1.4;
+}
+
+.export-button {
+  margin-bottom: 16rpx;
+}
+
+.data-tip {
+  color: #8f8172;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.data-tip + .data-tip {
+  margin-top: 8rpx;
+}
+
+.clear-card {
+  border-color: #f0c9bf;
+  background: #fff8f6;
+}

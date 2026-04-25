@@ -1,0 +1,56 @@
+<view class="page checklist-page">
+  <view class="page-header">
+    <view class="header-row">
+      <text class="brand-label">准备清单</text>
+      <text class="progress-badge">{{progressCountText}}</text>
+    </view>
+    <text class="header-copy">把退路拆成具体事项，慢慢补全，不用一次做完。</text>
+    <text class="cloud-status" wx:if="{{cloudSyncText}}">{{cloudSyncText}}</text>
+  </view>
+
+  <view class="hero-card section">
+    <text class="hero-title">当前完成 {{progressPercent}}%</text>
+    <text class="hero-copy">{{progressCopy}}</text>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+    </view>
+  </view>
+
+  <view class="add-card section">
+    <text class="section-title">新增事项</text>
+    <view class="field">
+      <input class="input" value="{{newTitle}}" maxlength="24" placeholder="例如：问清楚公积金转移" bindinput="onNewTitleInput" />
+    </view>
+    <view class="add-row">
+      <picker class="stage-picker" value="{{newStageIndex}}" range="{{stageLabels}}" bindchange="onStageChange">
+        <view class="picker-shell">{{stageLabels[newStageIndex]}}</view>
+      </picker>
+      <button class="secondary-button add-button" bindtap="addItem">添加</button>
+    </view>
+  </view>
+
+  <view class="stage-block" wx:for="{{stageGroups}}" wx:key="value">
+    <view class="stage-title-row">
+      <view class="stage-title-wrap">
+        <text class="stage-title">{{item.label}}</text>
+        <text class="stage-subtitle">{{item.summaryText}}</text>
+      </view>
+      <text class="stage-count">{{item.done}}/{{item.total}}</text>
+    </view>
+    <view class="stage-card">
+      <view
+        wx:for="{{item.items}}"
+        wx:for-item="task"
+        wx:key="id"
+        class="task-row {{task.completedClass}}"
+        data-id="{{task.id}}"
+        bindtap="toggleItem"
+      >
+        <text class="check-box">{{task.checkText}}</text>
+        <text class="task-title">{{task.title}}</text>
+        <text wx:if="{{task.custom}}" class="delete-text" data-id="{{task.id}}" catchtap="deleteItem">删除</text>
+      </view>
+      <view class="stage-empty" wx:if="{{item.empty}}">这个阶段还没有事项。</view>
+    </view>
+  </view>
+</view>

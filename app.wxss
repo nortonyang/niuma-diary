@@ -1,0 +1,193 @@
+page {
+  background: #fff7e8;
+  color: #2d2822;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+button,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+button {
+  border-radius: 12rpx;
+  margin: 0;
+}
+
+button::after {
+  border: 0;
+}
+
+button[disabled] {
+  opacity: 0.78;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 28rpx 28rpx 48rpx;
+}
+
+.section {
+  margin-bottom: 28rpx;
+}
+
+.panel {
+  background: #fffdf8;
+  border: 2rpx solid #efe0c9;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  box-shadow: 0 10rpx 28rpx rgba(81, 58, 31, 0.06);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.page-title {
+  color: #261f19;
+  font-size: 44rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.section-title {
+  color: #2d2822;
+  font-size: 32rpx;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.subtle {
+  color: #8f8172;
+  font-size: 24rpx;
+  line-height: 1.55;
+}
+
+.muted {
+  color: #8f8172;
+}
+
+.pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.pill {
+  min-height: 68rpx;
+  padding: 16rpx 24rpx;
+  border: 2rpx solid #ead7bd;
+  border-radius: 999rpx;
+  background: #fffaf0;
+  color: #4f4235;
+  font-size: 26rpx;
+  line-height: 1.25;
+}
+
+.pill.active {
+  border-color: #de5a32;
+  background: #fff0d8;
+  color: #b83f20;
+  font-weight: 700;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button,
+.ghost-button {
+  width: 100%;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 28rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.primary-button {
+  background: #de5a32;
+  color: #ffffff;
+}
+
+.secondary-button {
+  background: #253b36;
+  color: #ffffff;
+}
+
+.danger-button {
+  background: #ffe6df;
+  color: #c84524;
+}
+
+.ghost-button {
+  border: 2rpx solid #e6d2b7;
+  background: #fffaf0;
+  color: #4f4235;
+}
+
+.field {
+  margin-top: 22rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #5d5043;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.input,
+.textarea,
+.picker-shell {
+  width: 100%;
+  min-height: 82rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid #ead7bd;
+  border-radius: 14rpx;
+  background: #fffaf0;
+  color: #2d2822;
+  font-size: 28rpx;
+  line-height: 1.35;
+}
+
+.textarea {
+  min-height: 150rpx;
+  line-height: 1.5;
+}
+
+.card-grid {
+  display: flex;
+  gap: 16rpx;
+}
+
+.metric {
+  flex: 1;
+  min-height: 116rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #fff0d8;
+}
+
+.metric-value {
+  color: #c84524;
+  font-size: 34rpx;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.metric-label {
+  margin-top: 4rpx;
+  color: #7f7467;
+  font-size: 23rpx;
+}

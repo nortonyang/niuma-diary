@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/today/today",
+    "pages/calendar/calendar",
+    "pages/wishes/wishes",
+    "pages/me/me",
+    "pages/calm/calm",
+    "pages/checklist/checklist",
+    "pages/share/share",
+    "pages/privacy/privacy",
+    "pages/about/about"
+  ],
+  "window": {
+    "navigationBarTitleText": "留马",
+    "navigationBarBackgroundColor": "#fff7e8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fff7e8"
+  },
+  "tabBar": {
+    "color": "#7f7467",
+    "selectedColor": "#de5a32",
+    "backgroundColor": "#fffaf0",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/today/today",
+        "text": "今天"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "text": "日历"
+      },
+      {
+        "pagePath": "pages/wishes/wishes",
+        "text": "愿望"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

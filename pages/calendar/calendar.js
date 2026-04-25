@@ -1,0 +1,118 @@
+const constants = require('../../utils/constants')
+const storage = require('../../utils/storage')
+const dateUtil = require('../../utils/date')
+const calculations = require('../../utils/calculations')
+
+function enrichRecord(record) {
+  if (!record) return null
+  var reasonLabels = (record.reasons || []).map(function (reason) {
+    return constants.findLabel(constants.REASONS, reason)
+  }).filter(Boolean)
+
+  return Object.assign({}, record, {
+    moodLabel: constants.findLabel(constants.MOODS, record.mood),
+    reasonText: reasonLabels.length ? reasonLabels.join('、') : '未选择原因',
+    noteText: record.note || '这天没有写吐槽。'
+  })
+}
+
+function monthSubtitle(summary) {
+  if (!summary.count) {
+    return '这个月还没开始记'
+  }
+  return '这个月已记 ' + summary.count + ' 天'
+}
+
+Page({
+  data: {
+    year: 0,
+    month: 0,
+    monthTitle: '',
+    monthSubtitle: '',
+    weekdays: ['一', '二', '三', '四', '五', '六', '日'],
+    cells: [],
+    summary: calculations.summarizeMonth({}, 2026, 1),
+    selectedDate: '',
+    selectedDisplayDate: '',
+    selectedRecord: null
+  },
+
+  onShow: function () {
+    var now = new Date()
+    var year = this.data.year || now.getFullYear()
+    var month = this.data.month || now.getMonth() + 1
+    this.setData({
+      year: year,
+      month: month
+    })
+    this.renderCalendar()
+  },
+
+  renderCalendar: function () {
+    var records = storage.getDailyRecords()
+    var today = dateUtil.getToday()
+    var selectedDate = this.data.selectedDate
+    var summary = calculations.summarizeMonth(records, this.data.year, this.data.month)
+
+    if (!selectedDate && dateUtil.isInMonth(today, this.data.year, this.data.month) && records[today]) {
+      selectedDate = today
+    }
+
+    var cells = dateUtil.buildMonthCells(this.data.year, this.data.month).map(function (cell) {
+      var record = cell.date ? records[cell.date] : null
+      return Object.assign({}, cell, {
+        record: record,
+        levelClass: record ? calculations.classForQuitIndex(record.quitIndex) : 'level-0',
+        todayClass: cell.date === today ? 'is-today' : '',
+        selectedClass: cell.date && cell.date === selectedDate ? 'selected' : '',
+        hasRecordClass: record ? 'has-record' : ''
+      })
+    })
+
+    this.setData({
+      selectedDate: selectedDate,
+      monthTitle: this.data.year + ' 年 ' + this.data.month + ' 月',
+      monthSubtitle: monthSubtitle(summary),
+      cells: cells,
+      summary: summary,
+      selectedRecord: selectedDate ? enrichRecord(records[selectedDate]) : null,
+      selectedDisplayDate: selectedDate ? dateUtil.formatDisplayDate(selectedDate) : ''
+    })
+  },
+
+  prevMonth: function () {
+    var next = dateUtil.addMonths(this.data.year, this.data.month, -1)
+    this.setData({
+      year: next.year,
+      month: next.month,
+      selectedDate: ''
+    })
+    this.renderCalendar()
+  },
+
+  nextMonth: function () {
+    var next = dateUtil.addMonths(this.data.year, this.data.month, 1)
+    this.setData({
+      year: next.year,
+      month: next.month,
+      selectedDate: ''
+    })
+    this.renderCalendar()
+  },
+
+  selectDate: function (event) {
+    var date = event.currentTarget.dataset.date
+    if (!date) return
+    this.setData({
+      selectedDate: date
+    })
+    this.renderCalendar()
+  },
+
+  onShareAppMessage: function () {
+    return {
+      title: '我的班味日历',
+      path: '/pages/calendar/calendar'
+    }
+  }
+})

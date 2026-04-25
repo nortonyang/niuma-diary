@@ -1,0 +1,83 @@
+<view class="page calendar-page">
+  <view class="page-header">
+    <text class="brand-label">班味日历</text>
+    <text class="header-copy">看一眼这个月，是不是已经连续高压。</text>
+  </view>
+
+  <view class="month-hero section">
+    <view class="month-top">
+      <view>
+        <text class="month-title">{{monthTitle}}</text>
+        <text class="month-subtitle">{{monthSubtitle}}</text>
+      </view>
+      <view class="month-actions">
+        <button class="icon-button" bindtap="prevMonth">‹</button>
+        <button class="icon-button" bindtap="nextMonth">›</button>
+      </view>
+    </view>
+
+    <view class="hero-metrics">
+      <view class="hero-metric">
+        <text class="hero-metric-value">{{summary.count}}</text>
+        <text class="hero-metric-label">已记录</text>
+      </view>
+      <view class="hero-metric">
+        <text class="hero-metric-value">{{summary.averageIndex}}%</text>
+        <text class="hero-metric-label">平均指数</text>
+      </view>
+      <view class="hero-metric">
+        <text class="hero-metric-value">{{summary.maxIndex}}%</text>
+        <text class="hero-metric-label">最高指数</text>
+      </view>
+    </view>
+
+    <view class="hero-reason">
+      <text class="hero-reason-label">常见原因</text>
+      <text class="hero-reason-text">{{summary.topReasonsText}}</text>
+    </view>
+  </view>
+
+  <view class="calendar-board section">
+    <view class="week-row">
+      <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="month-grid">
+      <view
+        wx:for="{{cells}}"
+        wx:key="key"
+        class="day-cell {{item.todayClass}} {{item.selectedClass}} {{item.hasRecordClass}}"
+        data-date="{{item.date}}"
+        bindtap="selectDate"
+      >
+        <view class="day-card">
+          <text class="day-number">{{item.day}}</text>
+          <text class="day-index {{item.levelClass}}" wx:if="{{item.record}}">{{item.record.quitIndex}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-card section">
+    <block wx:if="{{selectedRecord}}">
+      <view class="detail-top">
+        <view>
+          <text class="detail-date">{{selectedDisplayDate}}</text>
+          <text class="detail-mood">{{selectedRecord.moodLabel}}</text>
+        </view>
+        <text class="detail-score">{{selectedRecord.quitIndex}}%</text>
+      </view>
+      <view class="detail-block">
+        <text class="detail-label">主要原因</text>
+        <text class="detail-text">{{selectedRecord.reasonText}}</text>
+      </view>
+      <view class="detail-block">
+        <text class="detail-label">一句话吐槽</text>
+        <text class="detail-note">{{selectedRecord.noteText}}</text>
+      </view>
+    </block>
+    <block wx:else>
+      <text class="empty-title">还没有选中记录</text>
+      <text class="empty-copy">点击有颜色的日期，可以查看当天的状态和原因。</text>
+    </block>
+  </view>
+</view>

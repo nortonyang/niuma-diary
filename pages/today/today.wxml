@@ -1,0 +1,161 @@
+<view class="page today-page">
+  <view class="today-header">
+    <view class="brand-row">
+      <text class="brand-name">留马</text>
+      <text class="header-date">{{headerDate}}</text>
+    </view>
+    <view class="header-subtitle">每天都想走，但先记一下</view>
+    <view class="draft-status" wx:if="{{draftStatusText}}">{{draftStatusText}}</view>
+    <view class="cloud-status" wx:if="{{cloudSyncText}}">{{cloudSyncText}}</view>
+  </view>
+
+  <view class="hero-card section">
+    <view class="hero-top">
+      <view>
+        <text class="hero-eyebrow">今日班味检测</text>
+        <text class="hero-caption">{{heroLine}}</text>
+      </view>
+      <text class="hero-badge">{{savedLabel}}</text>
+    </view>
+
+    <view class="hero-score-row">
+      <text class="hero-score">{{quitIndex}}%</text>
+      <view class="hero-copy-wrap">
+        <text class="hero-copy">{{dailyCopy}}</text>
+      </view>
+    </view>
+
+    <slider
+      class="hero-slider"
+      value="{{quitIndex}}"
+      min="0"
+      max="100"
+      step="1"
+      block-size="22"
+      activeColor="#de5a32"
+      backgroundColor="#ead7bd"
+      block-color="#253b36"
+      bindchange="onIndexChange"
+      bindchanging="onIndexChanging"
+    />
+
+    <view class="scale-row">
+      <text>还能忍</text>
+      <text>想下班</text>
+      <text>快爆了</text>
+    </view>
+  </view>
+
+  <view class="holiday-card section" bindtap="openCountdownModal">
+    <view class="holiday-main">
+      <text class="holiday-label">{{holidayCardTitle}}</text>
+      <text class="holiday-value">{{holidayCardValue}}</text>
+      <text class="holiday-hint">{{holidayCardHint}}</text>
+    </view>
+    <view class="holiday-badge">{{holidayCardBadge}}</view>
+  </view>
+
+  <view class="section info-section">
+    <view class="section-head">
+      <text class="section-title">今天是什么状态</text>
+    </view>
+    <view class="mood-grid">
+      <view
+        wx:for="{{moods}}"
+        wx:key="value"
+        class="mood-chip {{item.activeClass}}"
+        data-value="{{item.value}}"
+        bindtap="pickMood"
+      >
+        <text class="mood-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section info-section">
+    <view class="section-head">
+      <text class="section-title">主要原因</text>
+      <text class="section-meta">{{reasonSummary}}</text>
+    </view>
+    <view class="reason-row">
+      <view
+        wx:for="{{quickReasons}}"
+        wx:key="value"
+        class="reason-chip {{item.activeClass}}"
+        data-value="{{item.value}}"
+        bindtap="toggleReason"
+      >
+        {{item.label}}
+      </view>
+      <view class="reason-chip more-chip {{moreReasonsActiveClass}}" bindtap="toggleMoreReasons">
+        {{reasonToggleText}}
+      </view>
+    </view>
+    <view class="reason-row extra-reasons" wx:if="{{showAllReasons}}">
+      <view
+        wx:for="{{moreReasons}}"
+        wx:key="value"
+        class="reason-chip {{item.activeClass}}"
+        data-value="{{item.value}}"
+        bindtap="toggleReason"
+      >
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+
+  <view class="note-entry section">
+    <view class="note-toggle" bindtap="toggleNoteEditor">
+      <text class="note-toggle-title">补一句吐槽</text>
+      <text class="note-toggle-meta">{{noteToggleText}}</text>
+    </view>
+    <view class="note-editor" wx:if="{{showNoteEditor}}">
+      <textarea
+        class="textarea note-input"
+        value="{{note}}"
+        maxlength="80"
+        placeholder="可不写，先把今天记下来。"
+        bindinput="onNoteInput"
+      />
+      <view class="textarea-count">{{noteLength}}/80</view>
+    </view>
+  </view>
+
+  <button class="primary-button save-button" bindtap="saveRecord">
+    {{saveButtonText}}
+  </button>
+
+  <view class="income-card section" bindtap="handleIncomeTap">
+    <view>
+      <text class="income-label">{{incomeCardLabel}}</text>
+      <text class="income-copy">{{incomeCardCopy}}</text>
+    </view>
+    <text class="income-arrow">›</text>
+  </view>
+
+  <view class="quiet-links">
+    <text class="quiet-link" data-type="index" bindtap="openShare">生成指数卡</text>
+    <text class="quiet-link" bindtap="openCalm">离职冷静器</text>
+    <text class="quiet-link" bindtap="openChecklist">准备清单</text>
+  </view>
+
+  <view class="countdown-mask" wx:if="{{showCountdownModal}}" bindtap="closeCountdownModal">
+    <view class="countdown-panel" catchtap="noop">
+      <view class="countdown-head">
+        <view>
+          <text class="countdown-title">今天先忍住了</text>
+          <text class="countdown-copy">再坚持一下，先看离休息日还有多久。</text>
+        </view>
+        <text class="countdown-close" bindtap="closeCountdownModal">关闭</text>
+      </view>
+
+      <view class="countdown-list">
+        <view class="countdown-item" wx:for="{{countdownItems}}" wx:key="key">
+          <text class="countdown-item-title">{{item.title}}</text>
+          <text class="countdown-item-value">{{item.value}}</text>
+          <text class="countdown-item-hint">{{item.hint}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

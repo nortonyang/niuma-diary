@@ -1,0 +1,100 @@
+<view class="page me-page">
+  <view class="profile-hero section">
+    <view class="avatar-mark">
+      <image class="avatar-image" src="{{avatarSrc}}" mode="aspectFill" />
+    </view>
+    <view class="profile-main">
+      <text class="profile-name">{{profileName}}</text>
+      <text class="profile-copy">{{profileCopy}}</text>
+      <text class="cloud-status" wx:if="{{cloudSyncText}}">{{cloudSyncText}}</text>
+    </view>
+  </view>
+
+  <view class="summary-row section">
+    <view class="summary-card">
+      <text class="summary-title">{{incomeSummaryTitle}}</text>
+      <text class="summary-copy">{{incomeSummaryCopy}}</text>
+    </view>
+    <view class="summary-card muted-card">
+      <text class="summary-title">{{storageModeTitle}}</text>
+      <text class="summary-copy">{{storageModeCopy}}</text>
+    </view>
+  </view>
+
+  <view class="settings-card section">
+    <text class="section-title">本地设置</text>
+    <view class="field">
+      <text class="label">昵称</text>
+      <input class="input" value="{{form.nickname}}" maxlength="12" placeholder="可选" bindinput="onNicknameInput" />
+    </view>
+    <view class="field">
+      <text class="label">月薪</text>
+      <input class="input" value="{{form.monthlySalary}}" type="digit" placeholder="只存在本地，可不填" bindinput="onSalaryInput" />
+    </view>
+    <view class="settings-row">
+      <view class="field row-field">
+        <text class="label">每月工作天数</text>
+        <input class="input" value="{{form.workDaysPerMonth}}" type="digit" bindinput="onWorkDaysInput" />
+      </view>
+      <view class="field row-field">
+        <text class="label">每日小时</text>
+        <input class="input" value="{{form.workHoursPerDay}}" type="digit" bindinput="onWorkHoursInput" />
+      </view>
+    </view>
+    <button class="primary-button save-settings" bindtap="saveSettings">保存设置</button>
+  </view>
+
+  <view class="shortcut-card section">
+    <text class="section-title">隐私和说明</text>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="openPrivacy">
+        <text>隐私政策</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openAbout">
+        <text>关于留马</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openChecklist">
+        <text>离职准备清单</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="openCalm">
+        <text>离职冷静器</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="danger-card section export-card">
+    <text class="section-title">数据导出</text>
+    <text class="danger-copy">{{exportSummaryText}}</text>
+    <view class="data-metrics">
+      <view class="data-metric">
+        <text class="data-metric-value">{{recordCountText}}</text>
+        <text class="data-metric-label">打卡</text>
+      </view>
+      <view class="data-metric">
+        <text class="data-metric-value">{{wishCountText}}</text>
+        <text class="data-metric-label">愿望</text>
+      </view>
+      <view class="data-metric">
+        <text class="data-metric-value">{{checklistCountText}}</text>
+        <text class="data-metric-label">清单</text>
+      </view>
+      <view class="data-metric">
+        <text class="data-metric-value">{{draftCountText}}</text>
+        <text class="data-metric-label">草稿</text>
+      </view>
+    </view>
+    <button class="ghost-button export-button" bindtap="exportData">复制导出数据</button>
+    <text class="data-tip">导出内容为 JSON 快照，适合粘贴到备忘录、文档或发给自己备份。</text>
+    <text class="data-tip" wx:if="{{lastExportText}}">{{lastExportText}}</text>
+  </view>
+
+  <view class="danger-card section clear-card">
+    <text class="section-title">数据管理</text>
+    <text class="danger-copy">清空后会删除本机上的打卡、愿望和设置。</text>
+    <button class="danger-button" bindtap="clearData">清空本地数据</button>
+  </view>
+</view>
