@@ -11,6 +11,6 @@ App({
   },
 
   globalData: {
-    appName: '留马'
+    appName: '留马日记'
   }
 })

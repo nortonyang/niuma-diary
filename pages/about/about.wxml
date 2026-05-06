@@ -1,6 +1,6 @@
 <view class="page doc-page">
   <view class="page-header">
-    <text class="brand-label">留马</text>
+    <text class="brand-label">留马日记</text>
     <text class="header-copy">每天都想走，但先记一下。</text>
   </view>
 
@@ -12,7 +12,7 @@
   <view class="doc-card section">
     <view class="doc-item">
       <text class="doc-title">产品定位</text>
-      <text class="doc-text">留马帮助用户记录每天为什么累、忍住赚了多少钱，以及离开后最想做什么。核心目标是让记录更轻，让决定更冷静。</text>
+      <text class="doc-text">留马日记帮助用户记录每天为什么累、忍住赚了多少钱，以及离开后最想做什么。核心目标是让记录更轻，让决定更冷静。</text>
     </view>
 
     <view class="doc-item">

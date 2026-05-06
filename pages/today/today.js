@@ -6,14 +6,14 @@ const calculations = require('../../utils/calculations')
 
 const QUICK_REASON_VALUES = ['low_salary', 'overtime', 'boss', 'commute']
 const HOLIDAY_PERIODS = [
-  { name: '元旦', start: [2026, 1, 1], end: [2026, 1, 4] },
-  { name: '春节', start: [2026, 2, 15], end: [2026, 2, 24] },
-  { name: '清明节', start: [2026, 4, 4], end: [2026, 4, 7] },
-  { name: '劳动节', start: [2026, 5, 1], end: [2026, 5, 6] },
-  { name: '端午节', start: [2026, 6, 19], end: [2026, 6, 22] },
-  { name: '中秋节', start: [2026, 9, 25], end: [2026, 9, 28] },
-  { name: '国庆节', start: [2026, 10, 1], end: [2026, 10, 8] },
-  { name: '元旦', start: [2027, 1, 1], end: [2027, 1, 2] }
+  { name: '元旦', start: [2026, 1, 1], end: [2026, 1, 3] },
+  { name: '春节', start: [2026, 2, 15], end: [2026, 2, 23] },
+  { name: '清明节', start: [2026, 4, 4], end: [2026, 4, 6] },
+  { name: '劳动节', start: [2026, 5, 1], end: [2026, 5, 5] },
+  { name: '端午节', start: [2026, 6, 19], end: [2026, 6, 21] },
+  { name: '中秋节', start: [2026, 9, 25], end: [2026, 9, 27] },
+  { name: '国庆节', start: [2026, 10, 1], end: [2026, 10, 7] },
+  { name: '元旦', start: [2027, 1, 1], end: [2027, 1, 1] }
 ]
 const SPRING_FESTIVAL_DATES = [
   { year: 2026, parts: [2026, 2, 17] },
@@ -28,6 +28,10 @@ function formatHeaderDate(dateText) {
 
 function createLocalDate(parts) {
   return new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0)
+}
+
+function createNextDay(parts) {
+  return new Date(parts[0], parts[1] - 1, parts[2] + 1, 0, 0, 0, 0)
 }
 
 function pad(number) {
@@ -77,7 +81,7 @@ function getNextHolidayTarget(now) {
   for (index = 0; index < HOLIDAY_PERIODS.length; index += 1) {
     var current = HOLIDAY_PERIODS[index]
     var startDate = createLocalDate(current.start)
-    var endDate = createLocalDate(current.end)
+    var endDate = createNextDay(current.end)
 
     if (now >= startDate && now < endDate) {
       return {
@@ -658,7 +662,7 @@ Page({
 
   onShareAppMessage: function () {
     return {
-      title: '留马：每天都想走，但先记一下',
+      title: '留马日记：每天都想走，但先记一下',
       path: '/pages/today/today'
     }
   }

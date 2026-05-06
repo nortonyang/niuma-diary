@@ -11,7 +11,7 @@
     "pages/about/about"
   ],
   "window": {
-    "navigationBarTitleText": "留马",
+    "navigationBarTitleText": "留马日记",
     "navigationBarBackgroundColor": "#fff7e8",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#fff7e8"

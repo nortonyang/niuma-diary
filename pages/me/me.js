@@ -60,7 +60,7 @@ function buildStorageState(snapshot) {
 
 function buildExportPayload(snapshot) {
   return {
-    appName: '留马',
+    appName: '留马日记',
     exportVersion: 'local-snapshot-v1',
     exportedAt: snapshot.exportedAt,
     exportedAtText: formatExportTime(snapshot.exportedAt),
@@ -266,7 +266,7 @@ Page({
 
   onShareAppMessage: function () {
     return {
-      title: '留马：每天都想走，但先记一下',
+      title: '留马日记：每天都想走，但先记一下',
       path: '/pages/today/today'
     }
   }

@@ -52,7 +52,7 @@
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="openAbout">
-        <text>关于留马</text>
+        <text>关于留马日记</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="openChecklist">

@@ -5,3 +5,5 @@ miniprogram_npm/
 dist/
 coverage/
 *.log
+private.*.key
+docs/private.*.key

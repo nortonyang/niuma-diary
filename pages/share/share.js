@@ -727,7 +727,7 @@ Page({
     ctx.fillText('长按识别小程序码', 42, CARD_HEIGHT + 64)
     ctx.setFillStyle('#6f6254')
     ctx.setFontSize(22)
-    ctx.fillText('打开留马，先记一下今天的牛马状态', 42, CARD_HEIGHT + 104)
+    ctx.fillText('打开留马日记，先记一下今天的牛马状态', 42, CARD_HEIGHT + 104)
     ctx.drawImage(appCodePath, POSTER_WIDTH - QR_SIZE - 42, CARD_HEIGHT + 24, QR_SIZE, QR_SIZE)
 
     return new Promise(function (resolve) {
@@ -775,8 +775,8 @@ Page({
   onShareAppMessage: function () {
     return {
       title: this.data.type === 'income'
-        ? '留马：今天没裸辞，牛马续航中。'
-        : '留马：' + (this.data.moodVisual ? this.data.moodVisual.shareTitle : '我的今日班味状态'),
+        ? '留马日记：今天没裸辞，牛马续航中。'
+        : '留马日记：' + (this.data.moodVisual ? this.data.moodVisual.shareTitle : '我的今日班味状态'),
       path: '/pages/today/today'
     }
   }

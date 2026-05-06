@@ -1,7 +1,7 @@
 <view class="page today-page">
   <view class="today-header">
     <view class="brand-row">
-      <text class="brand-name">留马</text>
+      <text class="brand-name">留马日记</text>
       <text class="header-date">{{headerDate}}</text>
     </view>
     <view class="header-subtitle">每天都想走，但先记一下</view>

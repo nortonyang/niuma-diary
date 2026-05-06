@@ -1,7 +1,7 @@
 const CLOUD_CONFIG = {
   // Fill this after creating a CloudBase environment in WeChat DevTools.
   // Example: envId: 'niuma-prod-xxxxxx'
-  envId: 'prod-d8g4h00i9b7cf9e7a'
+  envId: 'cloud1-d1gvcraj65afdd1c7'
 }
 
 function isConfigured() {
