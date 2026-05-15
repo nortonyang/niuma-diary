@@ -1,4 +1,5 @@
 const cloudConfig = require('./cloud-config')
+const storage = require('./storage')
 
 const COLLECTIONS = {
   DAILY_RECORDS: 'daily_records',
@@ -22,8 +23,113 @@ function database() {
   return wx.cloud.database()
 }
 
+// --- Sync Status & Queue ---
+
+function getPendingQueue() {
+  try {
+    var queue = wx.getStorageSync('niuma_pending_sync_queue')
+    return Array.isArray(queue) ? queue : []
+  } catch (error) {
+    return []
+  }
+}
+
+function savePendingQueue(queue) {
+  wx.setStorageSync('niuma_pending_sync_queue', queue)
+  storage.saveSyncStatus({
+    pendingCount: queue.length
+  })
+}
+
+function addToPendingQueue(collection, action, payload, error) {
+  var queue = getPendingQueue()
+  var id = collection + '_' + (payload.id || payload.date || Date.now())
+  
+  var nextQueue = queue.filter(function (item) {
+    return !(item.collection === collection && (item.payload.id === payload.id || item.payload.date === payload.date))
+  })
+
+  nextQueue.push({
+    id: id,
+    collection: collection,
+    action: action,
+    payload: payload,
+    createdAt: Date.now(),
+    retryCount: 0,
+    lastError: error || ''
+  })
+
+  savePendingQueue(nextQueue)
+}
+
+function updateSyncStatus(update) {
+  storage.saveSyncStatus(Object.assign({ lastSyncAt: Date.now() }, update))
+}
+
+function processPendingQueue() {
+  if (!isCloudEnabled()) return Promise.resolve()
+
+  var queue = getPendingQueue()
+  if (!queue.length) return Promise.resolve()
+
+  var tasks = queue.map(function (item) {
+    var collection = item.collection
+    var action = item.action
+    var payload = item.payload
+
+    if (collection === COLLECTIONS.DAILY_RECORDS) {
+      return saveDailyRecord(payload)
+    }
+    if (collection === COLLECTIONS.USER_SETTINGS) {
+      return saveSettings(payload)
+    }
+    if (collection === COLLECTIONS.WISHES) {
+      return action === 'delete' ? deleteWish(payload.id) : saveWish(payload)
+    }
+    if (collection === COLLECTIONS.CHECKLIST_ITEMS) {
+      return action === 'delete' ? deleteChecklistItem(payload.id) : saveChecklistItem(payload)
+    }
+    return Promise.resolve({ skipped: true })
+  })
+
+  return Promise.allSettled(tasks).then(function (results) {
+    var nextQueue = []
+    var successCount = 0
+    var lastErrorMessage = ''
+
+    results.forEach(function (res, index) {
+      if (res.status === 'fulfilled') {
+        successCount++
+      } else {
+        var failedItem = queue[index]
+        failedItem.retryCount++
+        failedItem.lastError = res.reason ? (res.reason.message || String(res.reason)) : 'Unknown error'
+        lastErrorMessage = failedItem.lastError
+        
+        if (failedItem.retryCount < 5) {
+          nextQueue.push(failedItem)
+        }
+      }
+    })
+
+    savePendingQueue(nextQueue)
+    
+    var statusUpdate = {}
+    if (nextQueue.length > 0) {
+      statusUpdate.lastError = successCount > 0 ? '部分同步成功，剩余: ' + nextQueue.length : (lastErrorMessage || '同步失败')
+    } else {
+      statusUpdate.lastError = ''
+    }
+    updateSyncStatus(statusUpdate)
+  })
+}
+
+// --- Normalizers ---
+
 function normalizeDailyRecord(raw) {
   if (!raw) return null
+  var createdAt = Number(raw.createdAt) || 0
+  var updatedAt = Number(raw.updatedAt) || createdAt || 0
   return {
     _id: raw._id,
     date: raw.recordDate || raw.date,
@@ -31,13 +137,14 @@ function normalizeDailyRecord(raw) {
     mood: raw.mood || 'annoyed',
     reasons: raw.reasons || [],
     note: raw.note || '',
-    createdAt: raw.createdAt || Date.now(),
-    updatedAt: raw.updatedAt || Date.now()
+    createdAt: createdAt,
+    updatedAt: updatedAt
   }
 }
 
 function normalizeSettings(raw) {
   raw = raw || {}
+  var updatedAt = Number(raw.updatedAt) || 0
   return {
     _id: raw._id,
     userId: raw.userId || raw._id || raw._openid || '',
@@ -45,12 +152,14 @@ function normalizeSettings(raw) {
     monthlySalary: raw.monthlySalary || '',
     workDaysPerMonth: Number(raw.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(raw.workHoursPerDay) || 8,
-    updatedAt: raw.updatedAt || Date.now()
+    updatedAt: updatedAt
   }
 }
 
 function normalizeWish(raw) {
   if (!raw) return null
+  var createdAt = Number(raw.createdAt) || 0
+  var updatedAt = Number(raw.updatedAt) || createdAt || 0
   return {
     _id: raw._id,
     id: raw.localId || raw.id || raw._id,
@@ -58,13 +167,15 @@ function normalizeWish(raw) {
     category: raw.category || 'rest',
     estimatedCost: raw.estimatedCost || '',
     firstStep: raw.firstStep || '',
-    createdAt: raw.createdAt || Date.now(),
-    updatedAt: raw.updatedAt || Date.now()
+    createdAt: createdAt,
+    updatedAt: updatedAt
   }
 }
 
 function normalizeChecklistItem(raw) {
   if (!raw) return null
+  var createdAt = Number(raw.createdAt) || 0
+  var updatedAt = Number(raw.updatedAt) || createdAt || 0
   return {
     _id: raw._id,
     id: raw.localId || raw.id || raw._id,
@@ -72,356 +183,254 @@ function normalizeChecklistItem(raw) {
     stage: raw.stage || 'cool_down',
     completed: !!raw.completed,
     custom: !!raw.custom,
-    createdAt: raw.createdAt || Date.now(),
-    updatedAt: raw.updatedAt || Date.now()
+    sort: Number(raw.sort) || 0,
+    createdAt: createdAt,
+    updatedAt: updatedAt
   }
 }
 
-function getDailyRecord(date) {
-  if (!isCloudEnabled()) {
-    return skippedResult(null)
+// --- Generic Operations ---
+
+function fetchOne(collectionName, query) {
+  if (!isCloudEnabled()) return skippedResult(null)
+
+  var collection = database().collection(collectionName)
+  var request = query ? collection.where(query) : collection
+
+  return request.limit(1).get().then(function (res) {
+    return {
+      skipped: false,
+      data: res.data && res.data[0] || null
+    }
+  })
+}
+
+function fetchAll(collectionName, query, orderBy, limit) {
+  if (!isCloudEnabled()) return skippedResult([])
+
+  var collection = database().collection(collectionName)
+  var request = query ? collection.where(query) : collection
+
+  if (orderBy) {
+    request = request.orderBy(orderBy.field, orderBy.direction || 'asc')
   }
 
-  return database()
-    .collection(COLLECTIONS.DAILY_RECORDS)
-    .where({
-      recordDate: date
+  if (limit) {
+    request = request.limit(limit)
+  }
+
+  return request.get().then(function (res) {
+    return {
+      skipped: false,
+      data: res.data || []
+    }
+  })
+}
+
+function upsertItem(collectionName, query, payload, normalizer) {
+  if (!isCloudEnabled()) return skippedResult(payload)
+
+  var collection = database().collection(collectionName)
+  return fetchOne(collectionName, query).then(function (res) {
+    var existed = res.data
+    var payloadUpdatedAt = Number(payload.updatedAt) || 0
+    var now = Date.now()
+    var finalPayload = Object.assign({}, payload, {
+      updatedAt: payload.updatedAt || now
     })
-    .limit(1)
-    .get()
-    .then(function (res) {
+
+    if (existed) {
+      var existedUpdatedAt = Number(existed.updatedAt) || 0
+      
+      // RF-010: Protect against overwriting newer cloud data with older local data
+      if (payloadUpdatedAt > 0 && payloadUpdatedAt <= existedUpdatedAt) {
+        return {
+          skipped: true,
+          data: normalizer(existed)
+        }
+      }
+
+      return collection.doc(existed._id).update({
+        data: finalPayload
+      }).then(function () {
+        return {
+          skipped: false,
+          data: normalizer(Object.assign({}, existed, finalPayload))
+        }
+      })
+    }
+
+    return collection.add({
+      data: Object.assign({}, finalPayload, {
+        createdAt: finalPayload.createdAt || now
+      })
+    }).then(function (addRes) {
       return {
         skipped: false,
-        data: normalizeDailyRecord(res.data && res.data[0])
+        data: normalizer(Object.assign({}, finalPayload, {
+          _id: addRes._id,
+          createdAt: finalPayload.createdAt || now
+        }))
       }
     })
+  })
+}
+
+function removeItem(collectionName, query) {
+  if (!isCloudEnabled()) return skippedResult(null)
+
+  var collection = database().collection(collectionName)
+  return fetchOne(collectionName, query).then(function (res) {
+    var existed = res.data
+    if (!existed) {
+      return { skipped: false, data: null }
+    }
+    return collection.doc(existed._id).remove().then(function () {
+      return { skipped: false, data: null }
+    })
+  })
+}
+
+// --- Public APIs ---
+
+function getDailyRecord(date) {
+  return fetchOne(COLLECTIONS.DAILY_RECORDS, { recordDate: date }).then(function (res) {
+    res.data = normalizeDailyRecord(res.data)
+    return res
+  })
 }
 
 function saveDailyRecord(record) {
-  if (!isCloudEnabled()) {
-    return skippedResult(record)
-  }
-
-  var now = Date.now()
   var payload = {
     recordDate: record.date,
     quitIndex: Number(record.quitIndex) || 0,
     mood: record.mood || 'annoyed',
     reasons: record.reasons || [],
     note: record.note || '',
-    updatedAt: now
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt
   }
-  var collection = database().collection(COLLECTIONS.DAILY_RECORDS)
-
-  return collection
-    .where({
-      recordDate: record.date
-    })
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (existed) {
-        return collection.doc(existed._id).update({
-          data: payload
-        }).then(function () {
-          return {
-            skipped: false,
-            data: normalizeDailyRecord(Object.assign({}, existed, payload))
-          }
-        })
-      }
-
-      return collection.add({
-        data: Object.assign({}, payload, {
-          createdAt: record.createdAt || now
-        })
-      }).then(function (addRes) {
-        return {
-          skipped: false,
-          data: normalizeDailyRecord(Object.assign({}, payload, {
-            _id: addRes._id,
-            createdAt: record.createdAt || now
-          }))
-        }
-      })
-    })
+  return upsertItem(COLLECTIONS.DAILY_RECORDS, { recordDate: record.date }, payload, normalizeDailyRecord)
 }
 
 function getSettings() {
-  if (!isCloudEnabled()) {
-    return skippedResult(null)
-  }
-
-  return database()
-    .collection(COLLECTIONS.USER_SETTINGS)
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var settings = res.data && res.data[0]
-      return {
-        skipped: false,
-        data: settings ? normalizeSettings(settings) : null
-      }
-    })
+  return fetchOne(COLLECTIONS.USER_SETTINGS, null).then(function (res) {
+    res.data = normalizeSettings(res.data)
+    return res
+  })
 }
 
 function saveSettings(settings) {
-  if (!isCloudEnabled()) {
-    return skippedResult(settings)
-  }
-
-  var now = Date.now()
   var payload = {
     userId: settings.userId || '',
     nickname: settings.nickname || '',
     monthlySalary: settings.monthlySalary || '',
     workDaysPerMonth: Number(settings.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(settings.workHoursPerDay) || 8,
-    updatedAt: now
+    updatedAt: settings.updatedAt
   }
-  var collection = database().collection(COLLECTIONS.USER_SETTINGS)
-
-  return collection
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (existed) {
-        return collection.doc(existed._id).update({
-          data: payload
-        }).then(function () {
-          return {
-            skipped: false,
-            data: normalizeSettings(Object.assign({}, existed, payload))
-          }
-        })
-      }
-
-      return collection.add({
-        data: Object.assign({}, payload, {
-          createdAt: now
-        })
-      }).then(function (addRes) {
-        return {
-          skipped: false,
-          data: normalizeSettings(Object.assign({}, payload, {
-            _id: addRes._id,
-            createdAt: now
-          }))
-        }
-      })
-    })
+  return upsertItem(COLLECTIONS.USER_SETTINGS, null, payload, normalizeSettings)
 }
 
 function getWishes() {
-  if (!isCloudEnabled()) {
-    return skippedResult([])
-  }
+  return fetchAll(COLLECTIONS.WISHES, null, { field: 'updatedAt', direction: 'desc' }, 3).then(function (res) {
+    res.data = (res.data || []).map(normalizeWish).filter(Boolean)
+    return res
+  })
+}
 
-  return database()
-    .collection(COLLECTIONS.WISHES)
-    .orderBy('updatedAt', 'desc')
-    .limit(3)
-    .get()
-    .then(function (res) {
-      return {
-        skipped: false,
-        data: (res.data || []).map(normalizeWish).filter(Boolean)
-      }
-    })
+function getWish(id) {
+  return fetchOne(COLLECTIONS.WISHES, { localId: id }).then(function (res) {
+    res.data = normalizeWish(res.data)
+    return res
+  })
 }
 
 function saveWish(wish) {
-  if (!isCloudEnabled()) {
-    return skippedResult(wish)
-  }
-
-  var now = Date.now()
-  var localId = wish.id || 'wish_' + now
+  var localId = wish.id || 'wish_' + Date.now()
   var payload = {
     localId: localId,
     title: wish.title || '',
     category: wish.category || 'rest',
     estimatedCost: wish.estimatedCost || '',
     firstStep: wish.firstStep || '',
-    updatedAt: now
+    createdAt: wish.createdAt,
+    updatedAt: wish.updatedAt
   }
-  var collection = database().collection(COLLECTIONS.WISHES)
-
-  return collection
-    .where({
-      localId: localId
-    })
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (existed) {
-        return collection.doc(existed._id).update({
-          data: payload
-        }).then(function () {
-          return {
-            skipped: false,
-            data: normalizeWish(Object.assign({}, existed, payload))
-          }
-        })
-      }
-
-      return collection.add({
-        data: Object.assign({}, payload, {
-          createdAt: wish.createdAt || now
-        })
-      }).then(function (addRes) {
-        return {
-          skipped: false,
-          data: normalizeWish(Object.assign({}, payload, {
-            _id: addRes._id,
-            createdAt: wish.createdAt || now
-          }))
-        }
-      })
-    })
+  return upsertItem(COLLECTIONS.WISHES, { localId: localId }, payload, normalizeWish)
 }
 
 function deleteWish(id) {
-  if (!isCloudEnabled()) {
-    return skippedResult(null)
-  }
-
-  var collection = database().collection(COLLECTIONS.WISHES)
-  return collection
-    .where({
-      localId: id
-    })
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (!existed) {
-        return {
-          skipped: false,
-          data: null
-        }
-      }
-      return collection.doc(existed._id).remove().then(function () {
-        return {
-          skipped: false,
-          data: null
-        }
-      })
-    })
+  return removeItem(COLLECTIONS.WISHES, { localId: id })
 }
 
 function getChecklistItems() {
-  if (!isCloudEnabled()) {
-    return skippedResult([])
-  }
+  return fetchAll(COLLECTIONS.CHECKLIST_ITEMS, null, { field: 'sort', direction: 'asc' }).then(function (res) {
+    res.data = (res.data || []).map(normalizeChecklistItem).filter(Boolean)
+    return res
+  })
+}
 
-  return database()
-    .collection(COLLECTIONS.CHECKLIST_ITEMS)
-    .orderBy('updatedAt', 'desc')
-    .get()
-    .then(function (res) {
-      return {
-        skipped: false,
-        data: (res.data || []).map(normalizeChecklistItem).filter(Boolean)
-      }
-    })
+function getChecklistItem(id) {
+  return fetchOne(COLLECTIONS.CHECKLIST_ITEMS, { localId: id }).then(function (res) {
+    res.data = normalizeChecklistItem(res.data)
+    return res
+  })
 }
 
 function saveChecklistItem(item) {
-  if (!isCloudEnabled()) {
-    return skippedResult(item)
-  }
-
-  var now = Date.now()
-  var localId = item.id || 'check_' + now
+  var localId = item.id || 'check_' + Date.now()
   var payload = {
     localId: localId,
     title: item.title || '',
     stage: item.stage || 'cool_down',
     completed: !!item.completed,
     custom: !!item.custom,
-    updatedAt: now
+    sort: Number(item.sort) || 0,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt
   }
-  var collection = database().collection(COLLECTIONS.CHECKLIST_ITEMS)
-
-  return collection
-    .where({
-      localId: localId
-    })
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (existed) {
-        return collection.doc(existed._id).update({
-          data: payload
-        }).then(function () {
-          return {
-            skipped: false,
-            data: normalizeChecklistItem(Object.assign({}, existed, payload))
-          }
-        })
-      }
-
-      return collection.add({
-        data: Object.assign({}, payload, {
-          createdAt: item.createdAt || now
-        })
-      }).then(function (addRes) {
-        return {
-          skipped: false,
-          data: normalizeChecklistItem(Object.assign({}, payload, {
-            _id: addRes._id,
-            createdAt: item.createdAt || now
-          }))
-        }
-      })
-    })
+  return upsertItem(COLLECTIONS.CHECKLIST_ITEMS, { localId: localId }, payload, normalizeChecklistItem)
 }
 
 function deleteChecklistItem(id) {
-  if (!isCloudEnabled()) {
-    return skippedResult(null)
-  }
+  return removeItem(COLLECTIONS.CHECKLIST_ITEMS, { localId: id })
+}
 
-  var collection = database().collection(COLLECTIONS.CHECKLIST_ITEMS)
-  return collection
-    .where({
-      localId: id
-    })
-    .limit(1)
-    .get()
-    .then(function (res) {
-      var existed = res.data && res.data[0]
-      if (!existed) {
-        return {
-          skipped: false,
-          data: null
-        }
-      }
-      return collection.doc(existed._id).remove().then(function () {
-        return {
-          skipped: false,
-          data: null
-        }
-      })
-    })
+function clearAllCloudData() {
+  if (!isCloudEnabled()) return skippedResult(null)
+
+  // RF-004: Use cloud function for secure and complete data clearing
+  return wx.cloud.callFunction({
+    name: 'clearUserData'
+  }).then(function (res) {
+    var result = res.result || {}
+    if (result.success) {
+      return { skipped: false, data: true }
+    }
+    throw new Error(result.error || 'Clear cloud data failed')
+  })
 }
 
 module.exports = {
   COLLECTIONS: COLLECTIONS,
+  database: database,
   isCloudEnabled: isCloudEnabled,
+  getPendingQueue: getPendingQueue,
+  addToPendingQueue: addToPendingQueue,
+  processPendingQueue: processPendingQueue,
+  updateSyncStatus: updateSyncStatus,
   getDailyRecord: getDailyRecord,
   saveDailyRecord: saveDailyRecord,
   getSettings: getSettings,
   saveSettings: saveSettings,
   getWishes: getWishes,
+  getWish: getWish,
   saveWish: saveWish,
   deleteWish: deleteWish,
   getChecklistItems: getChecklistItems,
+  getChecklistItem: getChecklistItem,
   saveChecklistItem: saveChecklistItem,
-  deleteChecklistItem: deleteChecklistItem
+  deleteChecklistItem: deleteChecklistItem,
+  clearAllCloudData: clearAllCloudData
 }

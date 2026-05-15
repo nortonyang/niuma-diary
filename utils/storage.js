@@ -23,7 +23,8 @@ function normalizeSettings(raw) {
     nickname: source.nickname || '',
     monthlySalary: source.monthlySalary || '',
     workDaysPerMonth: Number(source.workDaysPerMonth) || constants.DEFAULT_SETTINGS.workDaysPerMonth,
-    workHoursPerDay: Number(source.workHoursPerDay) || constants.DEFAULT_SETTINGS.workHoursPerDay
+    workHoursPerDay: Number(source.workHoursPerDay) || constants.DEFAULT_SETTINGS.workHoursPerDay,
+    updatedAt: source.updatedAt || 0
   }
 }
 
@@ -123,18 +124,30 @@ function clearWishEditorDraft() {
   wx.removeStorageSync(constants.STORAGE_KEYS.WISH_EDITOR_DRAFT)
 }
 
-function saveWish(wish) {
-  var wishes = getWishes()
-  var now = Date.now()
-  var nextWish = Object.assign({}, wish, {
-    id: wish.id || 'wish_' + now,
+function normalizeWish(wish) {
+  var createdAt = Number(wish.createdAt) || 0
+  var updatedAt = Number(wish.updatedAt) || createdAt || 0
+  return {
+    id: wish.id || '',
     title: wish.title || '',
     category: wish.category || constants.WISH_CATEGORIES[0].value,
     estimatedCost: wish.estimatedCost || '',
     firstStep: wish.firstStep || '',
-    createdAt: wish.createdAt || now,
-    updatedAt: now
-  })
+    createdAt: createdAt,
+    updatedAt: updatedAt
+  }
+}
+
+function saveWish(wish) {
+  var wishes = getWishes()
+  var now = Date.now()
+  
+  // RF-007: Ensure we normalize but keep/set timestamps for local save
+  var nextWish = normalizeWish(wish)
+  nextWish.id = nextWish.id || 'wish_' + now
+  nextWish.createdAt = nextWish.createdAt || now
+  nextWish.updatedAt = now // Always update time on local save
+  
   var existed = false
   var nextWishes = wishes.map(function (item) {
     if (item.id === nextWish.id) {
@@ -152,8 +165,40 @@ function saveWish(wish) {
   return nextWish
 }
 
+function mergeWishes(items) {
+  var localWishes = getWishes()
+  var mergedMap = {}
+
+  localWishes.forEach(function (wish) {
+    mergedMap[wish.id] = normalizeWish(wish)
+  })
+
+  ;(items || []).forEach(function (cloudWish) {
+    var normalizedCloud = normalizeWish(cloudWish)
+    var localWish = mergedMap[normalizedCloud.id]
+    
+    // RF-007: Compare using stable timestamps. Cloud 0 will not overwrite local > 0.
+    if (!localWish || (normalizedCloud.updatedAt > (localWish.updatedAt || 0))) {
+      mergedMap[normalizedCloud.id] = normalizedCloud
+    }
+  })
+
+  var merged = Object.keys(mergedMap).map(function (id) {
+    return mergedMap[id]
+  })
+
+  // RF-006: Sort by updatedAt desc and keep top 3
+  merged.sort(function (a, b) {
+    return (b.updatedAt || 0) - (a.updatedAt || 0)
+  })
+
+  var nextWishes = merged.slice(0, 3)
+  writeStorage(constants.STORAGE_KEYS.AFTER_QUIT_WISHES, nextWishes)
+  return nextWishes
+}
+
 function writeWishes(wishes) {
-  var nextWishes = Array.isArray(wishes) ? wishes.slice(0, 3) : []
+  var nextWishes = Array.isArray(wishes) ? wishes.slice(0, 3).map(normalizeWish) : []
   writeStorage(constants.STORAGE_KEYS.AFTER_QUIT_WISHES, nextWishes)
   return nextWishes
 }
@@ -166,14 +211,17 @@ function deleteWish(id) {
 }
 
 function normalizeChecklistItem(item) {
+  var createdAt = Number(item.createdAt) || 0
+  var updatedAt = Number(item.updatedAt) || createdAt || 0
   return {
     id: item.id,
     title: item.title || '',
     stage: item.stage || constants.CHECKLIST_STAGES[0].value,
     completed: !!item.completed,
     custom: !!item.custom,
-    createdAt: item.createdAt || Date.now(),
-    updatedAt: item.updatedAt || Date.now()
+    sort: Number(item.sort) || 0,
+    createdAt: createdAt,
+    updatedAt: updatedAt
   }
 }
 
@@ -207,14 +255,26 @@ function mergeChecklistItems(items) {
   })
 
   ;(items || []).forEach(function (item) {
-    mergedMap[item.id] = normalizeChecklistItem(item)
+    var cloudItem = normalizeChecklistItem(item)
+    var localItem = mergedMap[cloudItem.id]
+
+    // RF-007: Use stable timestamps for conflict resolution.
+    if (!localItem || (cloudItem.updatedAt > (localItem.updatedAt || 0))) {
+      mergedMap[cloudItem.id] = cloudItem
+    }
   })
 
   constants.CHECKLIST_STAGES.forEach(function (stage) {
+    var stageItems = []
     Object.keys(mergedMap).forEach(function (id) {
       if (mergedMap[id].stage === stage.value) {
-        merged.push(mergedMap[id])
+        stageItems.push(mergedMap[id])
       }
+    })
+    stageItems.sort(function (a, b) {
+      return a.sort - b.sort
+    }).forEach(function (item) {
+      merged.push(item)
     })
   })
 
@@ -237,12 +297,15 @@ function toggleChecklistItem(id) {
 function saveChecklistItem(item) {
   var items = getChecklistItems()
   var now = Date.now()
-  var nextItem = normalizeChecklistItem(Object.assign({}, item, {
-    id: item.id || 'check_' + now,
-    custom: typeof item.custom === 'boolean' ? item.custom : true,
-    createdAt: item.createdAt || now,
-    updatedAt: now
-  }))
+  
+  // RF-007: Use stable normalization
+  var nextItem = normalizeChecklistItem(item)
+  nextItem.id = nextItem.id || 'check_' + now
+  nextItem.custom = typeof item.custom === 'boolean' ? item.custom : true
+  nextItem.sort = typeof item.sort === 'number' ? item.sort : (item.id ? 0 : now)
+  nextItem.createdAt = nextItem.createdAt || now
+  nextItem.updatedAt = now
+  
   var existed = false
   var nextItems = items.map(function (candidate) {
     if (candidate.id === nextItem.id) {
@@ -270,9 +333,32 @@ function getSettings() {
 
 function saveSettings(settings) {
   var current = getSettings()
+  // RF-003: Use provided updatedAt (from cloud) or current time (local change)
   var nextSettings = normalizeSettings(Object.assign({}, current, settings))
+  if (!settings.updatedAt) {
+    nextSettings.updatedAt = Date.now()
+  }
   writeStorage(constants.STORAGE_KEYS.USER_SETTINGS, nextSettings)
   return nextSettings
+}
+
+function getSyncStatus() {
+  var status = readStorage('niuma_sync_status', null)
+  if (!status || typeof status !== 'object') {
+    return {
+      lastSyncAt: 0,
+      lastError: '',
+      pendingCount: 0
+    }
+  }
+  return status
+}
+
+function saveSyncStatus(status) {
+  var current = getSyncStatus()
+  var nextStatus = Object.assign({}, current, status)
+  writeStorage('niuma_sync_status', nextStatus)
+  return nextStatus
 }
 
 function getStorageDebugSummary() {
@@ -376,6 +462,10 @@ function clearAllData() {
   wx.removeStorageSync(constants.STORAGE_KEYS.AFTER_QUIT_WISHES)
   wx.removeStorageSync(constants.STORAGE_KEYS.USER_SETTINGS)
   wx.removeStorageSync(constants.STORAGE_KEYS.CHECKLIST_ITEMS)
+  
+  // RF-009: Also clear sync queue and status to prevent ghost updates
+  wx.removeStorageSync('niuma_pending_sync_queue')
+  wx.removeStorageSync('niuma_sync_status')
 }
 
 module.exports = {
@@ -392,6 +482,7 @@ module.exports = {
   getWishes: getWishes,
   saveWish: saveWish,
   writeWishes: writeWishes,
+  mergeWishes: mergeWishes,
   deleteWish: deleteWish,
   getChecklistItems: getChecklistItems,
   writeChecklistItems: writeChecklistItems,
@@ -401,6 +492,8 @@ module.exports = {
   deleteChecklistItem: deleteChecklistItem,
   getSettings: getSettings,
   saveSettings: saveSettings,
+  getSyncStatus: getSyncStatus,
+  saveSyncStatus: saveSyncStatus,
   getStorageDebugSummary: getStorageDebugSummary,
   getStorageDebugSnapshot: getStorageDebugSnapshot,
   clearAllData: clearAllData

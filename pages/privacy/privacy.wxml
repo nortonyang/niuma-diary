@@ -6,13 +6,19 @@
 
   <view class="hero-card section">
     <text class="hero-title">默认先保存在当前设备</text>
-    <text class="hero-copy">打卡记录、愿望、月薪和偏好设置默认保存在微信小程序本地存储中。启用云开发后，正式数据会同步到云数据库；草稿仍只保存在本机。</text>
+    <text class="hero-copy">打卡记录、愿望、清单、月薪和偏好设置默认保存在微信小程序本地存储中。启用云开发后，正式数据会同步到云数据库；草稿仍只保存在本机。</text>
   </view>
 
   <view class="doc-card section">
     <view class="doc-item">
       <text class="doc-title">存储方式</text>
-      <text class="doc-text">当前版本不需要登录。未启用云开发时，打卡、愿望、月薪和偏好设置仅保存在当前设备；启用云开发后，正式数据会同步到云端，便于多端恢复。</text>
+      <text class="doc-text">当前版本不需要登录。未启用云开发时，数据仅保存在当前设备；启用云开发后，打卡、愿望、清单和偏好设置会同步到云端，便于多端恢复。草稿仅存本机。</text>
+    </view>
+
+    <view class="doc-item">
+      <text class="doc-title">权限与用途</text>
+      <text class="doc-text">相册权限：仅用于将分享图保存到手机相册。
+剪贴板：仅用于您主动导出的数据 JSON 快照。</text>
     </view>
 
     <view class="doc-item">
@@ -22,7 +28,7 @@
 
     <view class="doc-item">
       <text class="doc-title">清空数据</text>
-      <text class="doc-text">可以在“我的”页面清空本地数据。清空后，当前设备上的打卡记录、愿望、清单和设置会被删除。</text>
+      <text class="doc-text">可以在“我的”页面分别清空本地数据或云端数据。清空后，相应存储空间的数据将被永久删除。</text>
     </view>
 
     <view class="doc-item">

@@ -1,12 +1,14 @@
 const storage = require('../../utils/storage')
 const cloudData = require('../../utils/cloud-data')
 const calculations = require('../../utils/calculations')
+const sync = require('../../utils/sync')
 
 function buildProfileState(settings) {
   var income = calculations.calculateIncome(settings, 0)
   var cloudEnabled = cloudData.isCloudEnabled()
 
   return {
+    isCloudEnabled: cloudEnabled,
     profileName: settings.nickname || '匿名打工人',
     profileCopy: cloudEnabled
       ? (income.hasSalary
@@ -19,8 +21,8 @@ function buildProfileState(settings) {
       ? '日均约 ' + income.dailyIncomeText + ' 元'
       : '设置月薪后可换算今日收入',
     incomeSummaryCopy: income.hasSalary
-      ? '按每月 ' + settings.workDaysPerMonth + ' 天、每天 ' + settings.workHoursPerDay + ' 小时估算'
-      : '只影响你自己的本地换算和分享卡，不会上传'
+      ? '用于计算今日收入，开启云同步后会同步到云端。分享图默认不展示。'
+      : '用于计算今日收入，数据仅在您开启云同步后上传。分享图不展示。'
   }
 }
 
@@ -29,9 +31,19 @@ function pad(number) {
 }
 
 function formatExportTime(timestamp) {
+  if (!timestamp) return '无'
   var date = new Date(timestamp)
   return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' +
     pad(date.getHours()) + ':' + pad(date.getMinutes())
+}
+
+function buildSyncState() {
+  var status = storage.getSyncStatus()
+  return {
+    lastSyncTimeText: status.lastSyncAt ? formatExportTime(status.lastSyncAt) : '尚未同步',
+    syncPendingCount: status.pendingCount || 0,
+    syncLastError: status.lastError || ''
+  }
 }
 
 function buildStorageState(snapshot) {
@@ -76,7 +88,7 @@ Page({
     profileName: '匿名打工人',
     profileCopy: '数据默认保存在本机，不强制登录。',
     incomeSummaryTitle: '设置月薪后可换算今日收入',
-    incomeSummaryCopy: '只影响你自己的本地换算和分享卡，不会上传',
+    incomeSummaryCopy: '用于计算今日收入，数据仅在您开启云同步后上传。分享图不展示。',
     storageModeTitle: '默认只存在本机',
     storageModeCopy: '打卡、愿望和设置默认本地存储，不强制登录。',
     exportSummaryText: '已用 0 KB / 0 KB · 0 个 key',
@@ -86,6 +98,10 @@ Page({
     checklistCountText: '0/0',
     lastExportText: '',
     cloudSyncText: '',
+    isCloudEnabled: false,
+    lastSyncTimeText: '尚未同步',
+    syncPendingCount: 0,
+    syncLastError: '',
     form: {
       nickname: '',
       monthlySalary: '',
@@ -102,11 +118,34 @@ Page({
     var settings = storage.getSettings()
     var profileState = buildProfileState(settings)
     var storageState = buildStorageState()
+    var syncState = buildSyncState()
     this.setData(Object.assign({
       settings: settings,
       form: Object.assign({}, settings)
-    }, profileState, storageState))
+    }, profileState, storageState, syncState))
     this.syncSettingsFromCloud()
+  },
+
+  retryCloudSync: function () {
+    if (!this.data.isCloudEnabled) return
+    wx.showLoading({ title: '同步中...' })
+    
+    // Process pending failed tasks first
+    sync.processPendingQueue()
+      .then(function() {
+        // Then sync current settings
+        return sync.syncSettings(this.data.settings)
+      }.bind(this))
+      .then(function () {
+        wx.hideLoading()
+        this.loadSettings() // Reload everything to update UI
+        wx.showToast({ title: '同步完成', icon: 'success' })
+      }.bind(this))
+      .catch(function() {
+        wx.hideLoading()
+        this.setData(buildSyncState())
+        wx.showToast({ title: '同步部分失败', icon: 'none' })
+      }.bind(this))
   },
 
   syncSettingsFromCloud: function () {
@@ -114,15 +153,20 @@ Page({
       .then(function (res) {
         if (res.skipped || !res.data) return
 
-        var settings = storage.saveSettings(res.data)
-        var profileState = buildProfileState(settings)
-        var storageState = buildStorageState()
+        // Use sync utility logic for settings if needed, or just manual compare
+        var local = storage.getSettings()
+        var cloud = res.data
+        if ((cloud.updatedAt || 0) > (local.updatedAt || 0)) {
+          var settings = storage.saveSettings(cloud)
+          var profileState = buildProfileState(settings)
+          var storageState = buildStorageState()
 
-        this.setData(Object.assign({
-          settings: settings,
-          form: Object.assign({}, settings),
-          cloudSyncText: '云端设置已同步'
-        }, profileState, storageState))
+          this.setData(Object.assign({
+            settings: settings,
+            form: Object.assign({}, settings),
+            cloudSyncText: '云端设置已同步'
+          }, profileState, storageState))
+        }
       }.bind(this))
       .catch(function () {
         this.setData({
@@ -167,17 +211,16 @@ Page({
       title: '已保存',
       icon: 'success'
     })
-    cloudData.saveSettings(settings)
+    sync.syncSettings(settings)
       .then(function (res) {
         if (!res.skipped && res.data) {
-          var syncedSettings = storage.saveSettings(res.data)
-          var syncedProfileState = buildProfileState(syncedSettings)
-          var syncedStorageState = buildStorageState()
-          this.setData(Object.assign({
-            settings: syncedSettings,
-            form: Object.assign({}, syncedSettings),
+          if (res.source === 'cloud') {
+            this.loadSettings()
+            return
+          }
+          this.setData({
             cloudSyncText: '已同步到云端'
-          }, syncedProfileState, syncedStorageState))
+          })
           return
         }
 
@@ -187,7 +230,7 @@ Page({
       }.bind(this))
       .catch(function () {
         this.setData({
-          cloudSyncText: '云同步失败，已保存在本机'
+          cloudSyncText: '云同步失败，已加入待处理队列'
         })
       }.bind(this))
   },
@@ -217,49 +260,94 @@ Page({
   },
 
   exportData: function () {
-    var snapshot = storage.getStorageDebugSnapshot()
-    var payload = buildExportPayload(snapshot)
-    var exportText = JSON.stringify(payload, null, 2)
-    var sizeKb = Math.max(1, Math.round(exportText.length / 1024))
+    wx.showModal({
+      title: '导出数据确认',
+      content: '导出内容包含您的打卡记录、愿望、清单、设置和月薪。数据将复制到剪贴板，请妥善保管。',
+      confirmText: '确认导出',
+      confirmColor: '#de5a32',
+      success: function (res) {
+        if (!res.confirm) return
 
-    wx.setClipboardData({
-      data: exportText,
-      success: function () {
-        this.setData(Object.assign({
-          lastExportText: '最近导出：' + payload.exportedAtText
-        }, buildStorageState(snapshot)))
+        var snapshot = storage.getStorageDebugSnapshot()
+        var payload = buildExportPayload(snapshot)
+        var exportText = JSON.stringify(payload, null, 2)
+        var sizeKb = Math.max(1, Math.round(exportText.length / 1024))
 
-        wx.showModal({
-          title: '导出数据已复制',
-          content: '已复制约 ' + sizeKb + ' KB 的 JSON 快照，包含打卡、草稿、愿望、设置和清单，可直接粘贴保存。',
-          showCancel: false,
-          confirmText: '知道了',
-          confirmColor: '#de5a32'
+        wx.setClipboardData({
+          data: exportText,
+          success: function () {
+            this.setData(Object.assign({
+              lastExportText: '最近导出：' + payload.exportedAtText
+            }, buildStorageState(snapshot)))
+
+            wx.showToast({
+              title: '导出已复制',
+              icon: 'success'
+            })
+          }.bind(this),
+          fail: function () {
+            wx.showToast({
+              title: '复制失败',
+              icon: 'none'
+            })
+          }
         })
-      }.bind(this),
-      fail: function () {
-        wx.showToast({
-          title: '复制失败',
-          icon: 'none'
-        })
-      }
+      }.bind(this)
     })
   },
 
-  clearData: function () {
+  clearLocalData: function () {
     wx.showModal({
       title: '清空本地数据',
-      content: '这会删除本机上的打卡、愿望和设置。',
-      confirmText: '清空',
+      content: '这会删除本机上的记录、愿望和设置，不影响云端。确定要清空吗？',
+      confirmText: '确定清空',
       confirmColor: '#c84524',
       success: function (result) {
         if (!result.confirm) return
         storage.clearAllData()
         this.loadSettings()
         wx.showToast({
-          title: '已清空',
+          title: '已清空本地',
           icon: 'success'
         })
+      }.bind(this)
+    })
+  },
+
+  clearCloudData: function () {
+    wx.showModal({
+      title: '清空云端数据',
+      content: '这将永久删除您在云端存储的所有正式记录。确定要清空吗？',
+      confirmText: '确定删除',
+      confirmColor: '#c84524',
+      success: function (result) {
+        if (!result.confirm) return
+
+        wx.showLoading({ title: '清理中...' })
+        cloudData.clearAllCloudData()
+          .then(function () {
+            wx.hideLoading()
+            wx.showModal({
+              title: '云端已清空',
+              content: '云端数据已删除。建议您同时也清空本地数据以保持一致。',
+              confirmText: '清空本地',
+              cancelText: '保留本地',
+              success: function (res) {
+                if (res.confirm) {
+                  storage.clearAllData()
+                  this.loadSettings()
+                }
+              }.bind(this)
+            })
+          }.bind(this))
+          .catch(function (err) {
+            wx.hideLoading()
+            wx.showToast({
+              title: '清空失败',
+              icon: 'none'
+            })
+            console.error('Clear cloud data failed', err)
+          })
       }.bind(this)
     })
   },

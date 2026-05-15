@@ -4,8 +4,11 @@ const STORAGE_KEYS = {
   WISH_EDITOR_DRAFT: 'niuma_wish_editor_draft',
   AFTER_QUIT_WISHES: 'niuma_after_quit_wishes',
   USER_SETTINGS: 'niuma_user_settings',
-  CHECKLIST_ITEMS: 'niuma_checklist_items'
+  CHECKLIST_ITEMS: 'niuma_checklist_items',
+  SCHEMA_VERSION_INFO: 'niuma_schema_version_info'
 }
+
+const CURRENT_SCHEMA_VERSION = 1
 
 const DEFAULT_SETTINGS = {
   userId: '',
@@ -72,16 +75,16 @@ const CHECKLIST_STAGES = [
 ]
 
 const DEFAULT_CHECKLIST_ITEMS = [
-  { id: 'resume', stage: 'find_next', title: '更新简历' },
-  { id: 'portfolio', stage: 'find_next', title: '整理作品集' },
-  { id: 'savings', stage: 'save_money', title: '盘点存款' },
-  { id: 'insurance', stage: 'save_money', title: '计算社保和公积金影响' },
-  { id: 'bonus', stage: 'resign_ready', title: '确认年终奖和绩效发放时间' },
-  { id: 'non_compete', stage: 'resign_ready', title: '查看竞业协议' },
-  { id: 'backup', stage: 'resign_ready', title: '备份个人资料' },
-  { id: 'handover', stage: 'resign_ready', title: '梳理工作交接' },
-  { id: 'first_month', stage: 'recover', title: '规划离职后第一个月安排' },
-  { id: 'sleep_on_it', stage: 'cool_down', title: '隔 24 小时再看一次决定' }
+  { id: 'resume', stage: 'find_next', title: '更新简历', sort: 10 },
+  { id: 'portfolio', stage: 'find_next', title: '整理作品集', sort: 20 },
+  { id: 'savings', stage: 'save_money', title: '盘点存款', sort: 30 },
+  { id: 'insurance', stage: 'save_money', title: '计算社保和公积金影响', sort: 40 },
+  { id: 'bonus', stage: 'resign_ready', title: '确认年终奖和绩效发放时间', sort: 50 },
+  { id: 'non_compete', stage: 'resign_ready', title: '查看竞业协议', sort: 60 },
+  { id: 'backup', stage: 'resign_ready', title: '备份个人资料', sort: 70 },
+  { id: 'handover', stage: 'resign_ready', title: '梳理工作交接', sort: 80 },
+  { id: 'first_month', stage: 'recover', title: '规划离职后第一个月安排', sort: 90 },
+  { id: 'sleep_on_it', stage: 'cool_down', title: '隔 24 小时再看一次决定', sort: 100 }
 ]
 
 function findLabel(list, value) {
@@ -101,5 +104,6 @@ module.exports = {
   DEFAULT_CHECKLIST_ITEMS: DEFAULT_CHECKLIST_ITEMS,
   DAILY_COPY: DAILY_COPY,
   SHARE_COPY: SHARE_COPY,
+  CURRENT_SCHEMA_VERSION: CURRENT_SCHEMA_VERSION,
   findLabel: findLabel
 }

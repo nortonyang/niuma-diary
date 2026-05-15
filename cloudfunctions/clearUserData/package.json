@@ -1,0 +1,9 @@
+{
+  "name": "clearUserData",
+  "version": "1.0.0",
+  "description": "Securely clear all data for a user",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

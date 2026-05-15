@@ -1,6 +1,7 @@
 const constants = require('../../utils/constants')
 const storage = require('../../utils/storage')
 const cloudData = require('../../utils/cloud-data')
+const sync = require('../../utils/sync')
 
 function categoryIndex(value) {
   var index = constants.WISH_CATEGORIES.findIndex(function (item) {
@@ -76,7 +77,7 @@ Page({
     cloudData.getWishes()
       .then(function (res) {
         if (res.skipped || !res.data || !res.data.length) return
-        storage.writeWishes(res.data)
+        storage.mergeWishes(res.data)
         this.loadWishesWithoutCloud()
         this.setData({
           cloudSyncText: '云端愿望已同步'
@@ -202,21 +203,27 @@ Page({
       cloudSyncText: cloudData.isCloudEnabled() ? '正在同步云端...' : '当前仅保存在本机'
     })
     this.loadWishesWithoutCloud()
-    cloudData.saveWish(savedWish)
+    sync.syncWish(savedWish)
       .then(function (res) {
+        if (res.source === 'cloud') {
+          this.loadWishesWithoutCloud()
+        }
         this.setData({
           cloudSyncText: res.skipped ? '当前仅保存在本机' : '已同步到云端'
         })
       }.bind(this))
       .catch(function () {
         this.setData({
-          cloudSyncText: '云同步失败，已保存在本机'
+          cloudSyncText: '云同步失败，已加入待处理队列'
         })
       }.bind(this))
   },
 
   removeWish: function (event) {
     var id = event.currentTarget.dataset.id
+    var wish = this.data.wishes.find(function (item) { return item.id === id })
+    if (!wish) return
+
     wx.showModal({
       title: '删除愿望',
       content: '删除后只会清掉本地记录。',
@@ -229,7 +236,7 @@ Page({
             cloudSyncText: cloudData.isCloudEnabled() ? '正在同步云端...' : '当前仅删除本机数据'
           })
           this.loadWishesWithoutCloud()
-          cloudData.deleteWish(id)
+          sync.syncWish(wish, true)
             .then(function (res) {
               this.setData({
                 cloudSyncText: res.skipped ? '当前仅删除本机数据' : '云端已同步删除'
@@ -237,7 +244,7 @@ Page({
             }.bind(this))
             .catch(function () {
               this.setData({
-                cloudSyncText: '云端删除失败，本机已删除'
+                cloudSyncText: '云端删除失败，已加入待处理队列'
               })
             }.bind(this))
         }

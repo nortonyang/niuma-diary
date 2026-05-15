@@ -1,11 +1,14 @@
 const constants = require('../../utils/constants')
 const storage = require('../../utils/storage')
 const cloudData = require('../../utils/cloud-data')
+const sync = require('../../utils/sync')
 
 function buildStageGroups(items) {
   return constants.CHECKLIST_STAGES.map(function (stage) {
     var stageItems = items.filter(function (item) {
       return item.stage === stage.value
+    }).sort(function (a, b) {
+      return (a.sort || 0) - (b.sort || 0)
     }).map(function (item) {
       return Object.assign({}, item, {
         completedClass: item.completed ? 'completed' : '',
@@ -136,15 +139,18 @@ Page({
       cloudSyncText: cloudData.isCloudEnabled() ? '正在同步云端...' : '当前仅保存在本机'
     })
     this.loadItemsWithoutCloud()
-    cloudData.saveChecklistItem(savedItem)
+    sync.syncChecklistItem(savedItem)
       .then(function (res) {
+        if (res.source === 'cloud') {
+          this.loadItemsWithoutCloud()
+        }
         this.setData({
           cloudSyncText: res.skipped ? '当前仅保存在本机' : '已同步到云端'
         })
       }.bind(this))
       .catch(function () {
         this.setData({
-          cloudSyncText: '云同步失败，已保存在本机'
+          cloudSyncText: '云同步失败，已加入待处理队列'
         })
       }.bind(this))
   },
@@ -159,27 +165,33 @@ Page({
       cloudSyncText: cloudData.isCloudEnabled() ? '正在同步云端...' : '当前仅保存在本机'
     })
     this.loadItemsWithoutCloud()
-    cloudData.saveChecklistItem(item)
+    sync.syncChecklistItem(item)
       .then(function (res) {
+        if (res.source === 'cloud') {
+          this.loadItemsWithoutCloud()
+        }
         this.setData({
           cloudSyncText: res.skipped ? '当前仅保存在本机' : '已同步到云端'
         })
       }.bind(this))
       .catch(function () {
         this.setData({
-          cloudSyncText: '云同步失败，已保存在本机'
+          cloudSyncText: '云同步失败，已加入待处理队列'
         })
       }.bind(this))
   },
 
   deleteItem: function (event) {
     var id = event.currentTarget.dataset.id
+    var item = this.data.items.find(function (candidate) { return candidate.id === id })
+    if (!item) return
+
     storage.deleteChecklistItem(id)
     this.setData({
       cloudSyncText: cloudData.isCloudEnabled() ? '正在同步云端...' : '当前仅删除本机数据'
     })
     this.loadItemsWithoutCloud()
-    cloudData.deleteChecklistItem(id)
+    sync.syncChecklistItem(item, true)
       .then(function (res) {
         this.setData({
           cloudSyncText: res.skipped ? '当前仅删除本机数据' : '云端已同步删除'
@@ -187,7 +199,7 @@ Page({
       }.bind(this))
       .catch(function () {
         this.setData({
-          cloudSyncText: '云端删除失败，本机已删除'
+          cloudSyncText: '云端删除失败，已加入待处理队列'
         })
       }.bind(this))
   },

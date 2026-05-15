@@ -124,6 +124,17 @@
   flex: 1;
 }
 
+.status-value {
+  color: #6f6254;
+  font-size: 28rpx;
+  text-align: right;
+  flex: 1;
+}
+
+.error-value {
+  color: #de5a32;
+}
+
 .save-settings {
   margin-top: 30rpx;
 }
@@ -220,4 +231,27 @@
 .clear-card {
   border-color: #f0c9bf;
   background: #fff8f6;
+}
+
+.danger-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+  margin-top: 24rpx;
+}
+
+.danger-item {
+  border-bottom: 2rpx dashed #f0c9bf;
+  padding-bottom: 24rpx;
+}
+
+.danger-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ghost-danger {
+  border: 3rpx solid #de5a32 !important;
+  background: transparent !important;
+  color: #de5a32 !important;
 }
