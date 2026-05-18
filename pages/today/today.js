@@ -137,7 +137,8 @@ Page({
     holidayCardBadge: '',
     income: calculations.calculateIncome(constants.DEFAULT_SETTINGS, 0),
     incomeCardLabel: '设置月薪后',
-    incomeCardCopy: '这里会自动算出今天没裸辞约赚了多少'
+    incomeCardCopy: '这里会自动算出今天没裸辞约赚了多少',
+    streak: 0
   },
 
   onShow: function () {
@@ -163,6 +164,7 @@ Page({
     var now = new Date()
     var records = storage.getDailyRecords()
     var summary = calculations.summarizeMonth(records, now.getFullYear(), now.getMonth() + 1)
+    var streak = calculations.calculateStreak(records, today)
 
     if (draft && record && (draft.updatedAt || 0) <= (record.updatedAt || 0)) {
       storage.clearDailyDraft(today)
@@ -181,6 +183,8 @@ Page({
       return QUICK_REASON_VALUES.indexOf(value) < 0
     }).length
     var showNoteEditor = !!note
+    var wishes = storage.getWishes()
+    var pinnedWish = wishes.find(function (w) { return w.pinned })
 
     this.setData({
       today: today,
@@ -220,7 +224,9 @@ Page({
       holidayCardBadge: holidayCard.holidayCardBadge,
       income: income,
       incomeCardLabel: incomeCard.label,
-      incomeCardCopy: incomeCard.copy
+      incomeCardCopy: incomeCard.copy,
+      streak: streak,
+      pinnedWish: pinnedWish || null
     })
     this.syncTodayFromCloud(today)
   },
@@ -480,7 +486,8 @@ Page({
       savedLabel: '已记录',
       saveButtonText: '更新今日打卡',
       draftStatusText: '',
-      cloudSyncText: cloudData.isCloudEnabled() ? '云端同步中...' : '已保存本机'
+      cloudSyncText: cloudData.isCloudEnabled() ? '云端同步中...' : '已保存本机',
+      streak: calculations.calculateStreak(storage.getDailyRecords(), this.data.today)
     })
 
     wx.showToast({
@@ -560,6 +567,12 @@ Page({
   openChecklist: function () {
     wx.navigateTo({
       url: '/pages/checklist/checklist'
+    })
+  },
+
+  openWishes: function () {
+    wx.navigateTo({
+      url: '/pages/wishes/wishes'
     })
   },
 

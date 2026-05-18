@@ -1,83 +1,176 @@
 <view class="page calendar-page">
   <view class="page-header">
-    <text class="brand-label">班味日历</text>
-    <text class="header-copy">看一眼这个月，是不是已经连续高压。</text>
-  </view>
-
-  <view class="month-hero section">
-    <view class="month-top">
-      <view>
-        <text class="month-title">{{monthTitle}}</text>
-        <text class="month-subtitle">{{monthSubtitle}}</text>
-      </view>
-      <view class="month-actions">
-        <button class="icon-button" bindtap="prevMonth">‹</button>
-        <button class="icon-button" bindtap="nextMonth">›</button>
-      </view>
+    <view class="header-main">
+      <text class="brand-label">班味日历</text>
+      <text class="header-copy">看一眼这个月，是不是已经连续高压。</text>
     </view>
-
-    <view class="hero-metrics">
-      <view class="hero-metric">
-        <text class="hero-metric-value">{{summary.count}}</text>
-        <text class="hero-metric-label">已记录</text>
-      </view>
-      <view class="hero-metric">
-        <text class="hero-metric-value">{{summary.averageIndex}}%</text>
-        <text class="hero-metric-label">平均指数</text>
-      </view>
-      <view class="hero-metric">
-        <text class="hero-metric-value">{{summary.maxIndex}}%</text>
-        <text class="hero-metric-label">最高指数</text>
-      </view>
-    </view>
-
-    <view class="hero-reason">
-      <text class="hero-reason-label">常见原因</text>
-      <text class="hero-reason-text">{{summary.topReasonsText}}</text>
+    <view class="tab-toggle">
+      <view class="tab-item {{activeTab === 'month' ? 'active' : ''}}" data-tab="month" bindtap="switchTab">月历</view>
+      <view class="tab-item {{activeTab === 'week' ? 'active' : ''}}" data-tab="week" bindtap="switchTab">周复盘</view>
     </view>
   </view>
 
-  <view class="calendar-board section">
-    <view class="week-row">
-      <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
-    </view>
-    <view class="month-grid">
-      <view
-        wx:for="{{cells}}"
-        wx:key="key"
-        class="day-cell {{item.todayClass}} {{item.selectedClass}} {{item.hasRecordClass}}"
-        data-date="{{item.date}}"
-        bindtap="selectDate"
-      >
-        <view class="day-card">
-          <text class="day-number">{{item.day}}</text>
-          <text class="day-index {{item.levelClass}}" wx:if="{{item.record}}">{{item.record.quitIndex}}</text>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <view class="detail-card section">
-    <block wx:if="{{selectedRecord}}">
-      <view class="detail-top">
+  <block wx:if="{{activeTab === 'month'}}">
+    <view class="month-hero section">
+      <view class="month-top">
         <view>
-          <text class="detail-date">{{selectedDisplayDate}}</text>
-          <text class="detail-mood">{{selectedRecord.moodLabel}}</text>
+          <text class="month-title">{{monthTitle}}</text>
+          <text class="month-subtitle">{{monthSubtitle}}</text>
         </view>
-        <text class="detail-score">{{selectedRecord.quitIndex}}%</text>
+        <view class="month-actions">
+          <button class="icon-button" bindtap="prevMonth">‹</button>
+          <button class="icon-button" bindtap="nextMonth">›</button>
+        </view>
       </view>
-      <view class="detail-block">
-        <text class="detail-label">主要原因</text>
-        <text class="detail-text">{{selectedRecord.reasonText}}</text>
+
+      <block wx:if="{{summary.count > 0}}">
+        <view class="hero-metrics">
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{summary.count}}</text>
+            <text class="hero-metric-label">已记录</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{summary.averageIndex}}%</text>
+            <text class="hero-metric-label">平均指数</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{summary.maxIndex}}%</text>
+            <text class="hero-metric-label">最高指数</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{summary.maxConsecutiveHighPressure}}</text>
+            <text class="hero-metric-label">连续高压</text>
+          </view>
+        </view>
+
+        <view class="hero-reason">
+          <view class="reason-row">
+            <text class="hero-reason-label">常见原因</text>
+            <text class="hero-reason-text">{{summary.topReasonsText}}</text>
+          </view>
+          <view class="reason-row" wx:if="{{summary.maxIndexDateText}}">
+            <text class="hero-reason-label">最高日期</text>
+            <text class="hero-reason-text">{{summary.maxIndexDateText}} ({{summary.maxIndex}}%)</text>
+          </view>
+        </view>
+
+        <view class="income-card monthly-income" wx:if="{{summary.income.hasSalary}}">
+          <view class="income-main">
+            <text class="income-label">本月忍住收入</text>
+            <text class="income-value">¥{{summary.income.monthIncomeText}}</text>
+          </view>
+          <text class="income-copy">钱是给自己的，气是留给公司的。这是你应得的补偿。</text>
+        </view>
+
+        <view class="report-footer monthly-footer">
+          <button class="secondary-button share-report" bindtap="shareMonthlyReport">生成月度复盘卡</button>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="empty-month-placeholder">
+          <text class="empty-copy">这个月还没有记录，打卡后开启月度统计。</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="calendar-board section">
+      <view class="week-row">
+        <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
       </view>
-      <view class="detail-block">
-        <text class="detail-label">一句话吐槽</text>
-        <text class="detail-note">{{selectedRecord.noteText}}</text>
+      <view class="month-grid">
+        <view
+          wx:for="{{cells}}"
+          wx:key="key"
+          class="day-cell {{item.todayClass}} {{item.selectedClass}} {{item.hasRecordClass}}"
+          data-date="{{item.date}}"
+          bindtap="selectDate"
+        >
+          <view class="day-card">
+            <text class="day-number">{{item.day}}</text>
+            <text class="day-index {{item.levelClass}}" wx:if="{{item.record}}">{{item.record.quitIndex}}</text>
+          </view>
+        </view>
       </view>
-    </block>
-    <block wx:else>
-      <text class="empty-title">还没有选中记录</text>
-      <text class="empty-copy">点击有颜色的日期，可以查看当天的状态和原因。</text>
-    </block>
-  </view>
+    </view>
+
+    <view class="detail-card section">
+      <block wx:if="{{selectedRecord}}">
+        <view class="detail-top">
+          <view>
+            <text class="detail-date">{{selectedDisplayDate}}</text>
+            <text class="detail-mood">{{selectedRecord.moodLabel}}</text>
+          </view>
+          <text class="detail-score">{{selectedRecord.quitIndex}}%</text>
+        </view>
+        <view class="detail-block">
+          <text class="detail-label">主要原因</text>
+          <text class="detail-text">{{selectedRecord.reasonText}}</text>
+        </view>
+        <view class="detail-block">
+          <text class="detail-label">一句话吐槽</text>
+          <text class="detail-note">{{selectedRecord.noteText}}</text>
+        </view>
+      </block>
+      <block wx:else>
+        <text class="empty-title">还没有选中记录</text>
+        <text class="empty-copy">点击有颜色的日期，可以查看当天的状态和原因。</text>
+      </block>
+    </view>
+
+  </block>
+
+  <block wx:if="{{activeTab === 'week'}}">
+    <view class="week-report section">
+      <block wx:if="{{weeklySummary.count > 0}}">
+        <view class="report-header">
+          <text class="report-title">最近 7 天复盘</text>
+          <text class="report-subtitle">过去一周，你辛苦了。</text>
+        </view>
+
+        <view class="hero-metrics">
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{weeklySummary.count}}</text>
+            <text class="hero-metric-label">打卡天数</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{weeklySummary.averageIndex}}%</text>
+            <text class="hero-metric-label">平均指数</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{weeklySummary.maxIndex}}%</text>
+            <text class="hero-metric-label">最高指数</text>
+          </view>
+          <view class="hero-metric">
+            <text class="hero-metric-value">{{weeklySummary.highPressureCount}}</text>
+            <text class="hero-metric-label">高压天数</text>
+          </view>
+        </view>
+
+        <view class="hero-reason">
+          <text class="hero-reason-label">核心压力源</text>
+          <text class="hero-reason-text">{{weeklySummary.topReasonsText}}</text>
+        </view>
+
+        <view class="income-card" wx:if="{{weeklySummary.income.hasSalary}}">
+          <view class="income-main">
+            <text class="income-label">本周忍住收入</text>
+            <text class="income-value">¥{{weeklySummary.income.monthIncomeText}}</text>
+          </view>
+          <text class="income-copy">这是你用忍耐换来的实际报酬。虽然班味重，但钱是实实在在的。</text>
+        </view>
+
+        <view class="report-footer">
+          <button class="secondary-button share-report" bindtap="shareWeeklyReport">生成复盘分享卡</button>
+          <text class="footer-copy">先记录，先冷静。哪怕只有 1% 的进步，也值得肯定。</text>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="empty-report">
+          <text class="empty-title">最近 7 天没有打卡</text>
+          <text class="empty-copy">本周还没开始记录班味，去首页打个卡吧。</text>
+          <button class="primary-button" bindtap="goToToday">去打卡</button>
+        </view>
+      </block>
+    </view>
+  </block>
 </view>

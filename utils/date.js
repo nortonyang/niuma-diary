@@ -64,6 +64,17 @@ function addMonths(year, month, diff) {
   }
 }
 
+function getRecentDates(days) {
+  var dates = []
+  var now = new Date()
+  for (var i = 0; i < days; i++) {
+    var d = new Date(now)
+    d.setDate(now.getDate() - i)
+    dates.push(formatDate(d))
+  }
+  return dates
+}
+
 function formatDisplayDate(dateText) {
   var date = parseDate(dateText)
   return (date.getMonth() + 1) + '月' + date.getDate() + '日'
@@ -190,6 +201,7 @@ module.exports = {
   getDaysInMonth: getDaysInMonth,
   buildMonthCells: buildMonthCells,
   addMonths: addMonths,
+  getRecentDates: getRecentDates,
   formatDisplayDate: formatDisplayDate,
   formatLunarDate: formatLunarDate,
   formatHeaderDateWithLunar: formatHeaderDateWithLunar

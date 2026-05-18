@@ -133,6 +133,8 @@ function normalizeWish(wish) {
     category: wish.category || constants.WISH_CATEGORIES[0].value,
     estimatedCost: wish.estimatedCost || '',
     firstStep: wish.firstStep || '',
+    progressStatus: wish.progressStatus || 'todo',
+    pinned: !!wish.pinned,
     createdAt: createdAt,
     updatedAt: updatedAt
   }
@@ -148,6 +150,16 @@ function saveWish(wish) {
   nextWish.createdAt = nextWish.createdAt || now
   nextWish.updatedAt = now // Always update time on local save
   
+  // REQ-1401: If pinning this wish, unpin others
+  if (nextWish.pinned) {
+    wishes.forEach(function (item) {
+      if (item.id !== nextWish.id) {
+        item.pinned = false
+        item.updatedAt = now
+      }
+    })
+  }
+
   var existed = false
   var nextWishes = wishes.map(function (item) {
     if (item.id === nextWish.id) {
@@ -208,6 +220,25 @@ function deleteWish(id) {
     return wish.id !== id
   })
   writeStorage(constants.STORAGE_KEYS.AFTER_QUIT_WISHES, nextWishes)
+}
+
+function toggleWishPin(id) {
+  var now = Date.now()
+  var wishes = getWishes().map(function (wish) {
+    if (wish.id === id) {
+      return Object.assign({}, wish, {
+        pinned: !wish.pinned,
+        updatedAt: now
+      })
+    }
+    // If we are pinning a new one, unpin others
+    return Object.assign({}, wish, {
+      pinned: false,
+      updatedAt: wish.pinned ? now : wish.updatedAt
+    })
+  })
+  writeStorage(constants.STORAGE_KEYS.AFTER_QUIT_WISHES, wishes)
+  return wishes
 }
 
 function normalizeChecklistItem(item) {
@@ -484,6 +515,7 @@ module.exports = {
   writeWishes: writeWishes,
   mergeWishes: mergeWishes,
   deleteWish: deleteWish,
+  toggleWishPin: toggleWishPin,
   getChecklistItems: getChecklistItems,
   writeChecklistItems: writeChecklistItems,
   mergeChecklistItems: mergeChecklistItems,

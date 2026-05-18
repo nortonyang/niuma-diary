@@ -369,6 +369,226 @@ function drawIncomeCardContent(ctx) {
   ctx.setTextAlign('left')
 }
 
+function drawWeeklyCardContent(ctx, summary) {
+  ctx.setFillStyle('#fffdf8')
+  ctx.fillRect(58, 492, 510, 432)
+
+  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
+  ctx.setTextAlign('center')
+  ctx.setFontSize(28)
+  ctx.setFillStyle('#5f4830')
+  ctx.fillText('最近 7 天复盘', 313, 531)
+
+  // Top stats row
+  ctx.setFillStyle('#7f7467')
+  ctx.setFontSize(22)
+  ctx.fillText('打卡天数', 160, 580)
+  ctx.fillText('平均指数', 313, 580)
+  ctx.fillText('高压天数', 466, 580)
+
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(38)
+  ctx.fillText(summary.count, 160, 625)
+  ctx.fillText(summary.averageIndex + '%', 313, 625)
+  ctx.fillText(summary.highPressureCount, 466, 625)
+
+  // Reasons section
+  fillRoundRect(ctx, 92, 660, 442, 100, 16, 'rgba(37, 59, 54, 0.05)')
+  ctx.setFillStyle('#5f4830')
+  ctx.setFontSize(24)
+  ctx.fillText('核心压力源', 313, 695)
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(28)
+  ctx.fillText(summary.topReasonsText || '暂无', 313, 735)
+
+  // Income if exists
+  if (summary.income && summary.income.hasSalary) {
+    fillRoundRect(ctx, 92, 780, 442, 80, 16, '#fdf2e9')
+    ctx.setFillStyle('#de5a32')
+    ctx.setFontSize(26)
+    ctx.fillText('本周忍住收入: ¥' + summary.income.monthIncomeText, 313, 830)
+  } else {
+    ctx.setFillStyle('#8f8172')
+    ctx.setFontSize(24)
+    ctx.fillText('先记录，先冷静。', 313, 830)
+  }
+
+  ctx.setFillStyle('#4a3a2c')
+  ctx.setFontSize(26)
+  ctx.fillText('只有 1% 的进步也值得肯定', 313, 895)
+  ctx.setTextAlign('left')
+}
+
+function drawMonthlyCardContent(ctx, summary, year, month) {
+  ctx.setFillStyle('#fffdf8')
+  ctx.fillRect(58, 492, 510, 432)
+
+  fillRoundRect(ctx, 187, 499, 252, 47, 23, '#f5efdf')
+  ctx.setTextAlign('center')
+  ctx.setFontSize(28)
+  ctx.setFillStyle('#5f4830')
+  ctx.fillText(year + ' 年 ' + month + ' 月班味复盘', 313, 531)
+
+  // Stats rows
+  ctx.setFillStyle('#7f7467')
+  ctx.setFontSize(20)
+  ctx.fillText('打卡天数', 113, 580)
+  ctx.fillText('平均指数', 247, 580)
+  ctx.fillText('最高指数', 380, 580)
+  ctx.fillText('连续高压', 514, 580)
+
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(32)
+  ctx.fillText(summary.count, 113, 625)
+  ctx.fillText(summary.averageIndex + '%', 247, 625)
+  ctx.fillText(summary.maxIndex + '%', 380, 625)
+  ctx.fillText(summary.maxConsecutiveHighPressure, 514, 625)
+
+  // Reasons section
+  fillRoundRect(ctx, 92, 660, 442, 100, 16, 'rgba(37, 59, 54, 0.05)')
+  ctx.setFillStyle('#5f4830')
+  ctx.setFontSize(24)
+  ctx.fillText('主要压力源', 313, 695)
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(26)
+  ctx.fillText(summary.topReasonsText || '暂无', 313, 735)
+
+  // Max index date
+  if (summary.maxIndexDateText) {
+    ctx.setFillStyle('#7f7467')
+    ctx.setFontSize(22)
+    ctx.fillText('最高班味出现在 ' + summary.maxIndexDateText, 313, 790)
+  }
+
+  // Income if exists
+  if (summary.income && summary.income.hasSalary) {
+    fillRoundRect(ctx, 92, 810, 442, 70, 16, '#fdf2e9')
+    ctx.setFillStyle('#de5a32')
+    ctx.setFontSize(26)
+    ctx.fillText('本月忍住收入: ¥' + summary.income.monthIncomeText, 313, 853)
+  } else {
+    ctx.setFillStyle('#8f8172')
+    ctx.setFontSize(24)
+    ctx.fillText('钱是自己的，气是公司的。', 313, 853)
+  }
+
+  ctx.setFillStyle('#4a3a2c')
+  ctx.setFontSize(26)
+  ctx.fillText('新的一月，对自己好一点', 313, 905)
+  ctx.setTextAlign('left')
+}
+
+function drawStreakCardContent(ctx, streak) {
+  ctx.setFillStyle('#fffdf8')
+  ctx.fillRect(58, 492, 510, 432)
+
+  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
+  ctx.setTextAlign('center')
+  ctx.setFontSize(28)
+  ctx.setFillStyle('#5f4830')
+  ctx.fillText('连续打卡成就', 313, 531)
+
+  // Main badge
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(140)
+  ctx.fillText(streak, 313, 700)
+
+  ctx.setFillStyle('#7f7467')
+  ctx.setFontSize(36)
+  ctx.fillText('天', 430, 700)
+
+  ctx.setFillStyle('#5f4830')
+  ctx.setFontSize(32)
+  ctx.fillText('连续记录班味', 313, 760)
+
+  // Subtext based on streak
+  var copy = '才刚刚开始，继续坚持'
+  if (streak >= 100) copy = '牛马中的王者，佩服！'
+  else if (streak >= 30) copy = '已经养成习惯，你很棒'
+  else if (streak >= 7) copy = '坚持了一周，是个好的开始'
+
+  ctx.setFillStyle('#8f8172')
+  ctx.setFontSize(26)
+  ctx.fillText(copy, 313, 820)
+
+  ctx.setFillStyle('#4a3a2c')
+  ctx.setFontSize(28)
+  ctx.fillText('留马日记 · 先记录，先冷静', 313, 900)
+  ctx.setTextAlign('left')
+}
+
+function drawWishCardContent(ctx, wish) {
+  ctx.setFillStyle('#fffdf8')
+  ctx.fillRect(58, 492, 510, 432)
+
+  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#eef4d8')
+  ctx.setTextAlign('center')
+  ctx.setFontSize(28)
+  ctx.setFillStyle('#3f6f37')
+  ctx.fillText('愿望清单', 313, 531)
+
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(44)
+  ctx.fillText(wish.title, 313, 620)
+
+  ctx.setFillStyle('#7f7467')
+  ctx.setFontSize(26)
+  ctx.fillText(wish.categoryLabel || '退路愿望', 313, 670)
+
+  fillRoundRect(ctx, 92, 710, 442, 110, 16, 'rgba(37, 59, 54, 0.05)')
+  ctx.setFillStyle('#5f4830')
+  ctx.setFontSize(24)
+  ctx.fillText('第一小步', 313, 745)
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(28)
+  ctx.fillText(wish.firstStep || '还没想好，先记下愿望', 313, 785)
+
+  ctx.setFillStyle('#8f8172')
+  ctx.setFontSize(26)
+  ctx.fillText('先给自己留个退路，哪怕还在路上', 313, 880)
+  ctx.setTextAlign('left')
+}
+
+function drawCalmCardContent(ctx, result, pressurePercent) {
+  ctx.setFillStyle('#fffdf8')
+  ctx.fillRect(58, 492, 510, 432)
+
+  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
+  ctx.setTextAlign('center')
+  ctx.setFontSize(28)
+  ctx.setFillStyle('#5f4830')
+  ctx.fillText('离职冷静结论', 313, 531)
+
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(42)
+  ctx.fillText(result.title, 313, 620)
+
+  ctx.setFillStyle('#7f7467')
+  ctx.setFontSize(26)
+  ctx.fillText('高压检测指数: ' + pressurePercent + '%', 313, 670)
+
+  fillRoundRect(ctx, 92, 710, 442, 130, 16, '#fdf2e9')
+  ctx.setFillStyle('#5f4830')
+  ctx.setFontSize(24)
+  ctx.fillText('冷静建议', 313, 745)
+
+  // Multi-line wrap for suggestion
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(28)
+  var text = result.copy
+  if (text.length > 15) {
+    ctx.fillText(text.slice(0, 15), 313, 785)
+    ctx.fillText(text.slice(15), 313, 825)
+  } else {
+    ctx.fillText(text, 313, 785)
+  }
+
+  ctx.setFillStyle('#8f8172')
+  ctx.setFontSize(26)
+  ctx.fillText('先记录，先冷静。再做最终决定。', 313, 900)
+  ctx.setTextAlign('left')
+}
+
 function renderMoodCard(page, visual) {
   return getImageInfo(config.MOOD_TEMPLATE_IMAGE.display)
     .then(function (templateInfo) {
@@ -396,6 +616,101 @@ function renderIncomeCard(page) {
 
       ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
       drawIncomeCardContent(ctx)
+
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () {
+          resolve()
+        })
+      })
+    })
+    .then(function () {
+      return canvasToCardTempFilePath(page)
+    })
+}
+
+function renderWeeklyCard(page, summary) {
+  return getImageInfo(config.CARD_IMAGES.weekly.display)
+    .then(function (templateInfo) {
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+
+      ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+      drawWeeklyCardContent(ctx, summary)
+
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () {
+          resolve()
+        })
+      })
+    })
+    .then(function () {
+      return canvasToCardTempFilePath(page)
+    })
+}
+
+function renderMonthlyCard(page, summary, year, month) {
+  return getImageInfo(config.CARD_IMAGES.monthly.display)
+    .then(function (templateInfo) {
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+
+      ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+      drawMonthlyCardContent(ctx, summary, year, month)
+
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () {
+          resolve()
+        })
+      })
+    })
+    .then(function () {
+      return canvasToCardTempFilePath(page)
+    })
+}
+
+function renderStreakCard(page, streak) {
+  return getImageInfo(config.CARD_IMAGES.streak.display)
+    .then(function (templateInfo) {
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+
+      ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+      drawStreakCardContent(ctx, streak)
+
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () {
+          resolve()
+        })
+      })
+    })
+    .then(function () {
+      return canvasToCardTempFilePath(page)
+    })
+}
+
+function renderWishCard(page, wish) {
+  return getImageInfo(config.CARD_IMAGES.wish.display)
+    .then(function (templateInfo) {
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+
+      ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+      drawWishCardContent(ctx, wish)
+
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () {
+          resolve()
+        })
+      })
+    })
+    .then(function () {
+      return canvasToCardTempFilePath(page)
+    })
+}
+
+function renderCalmCard(page, result, pressurePercent) {
+  return getImageInfo(config.CARD_IMAGES.calm.display)
+    .then(function (templateInfo) {
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+
+      ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+      drawCalmCardContent(ctx, result, pressurePercent)
 
       return new Promise(function (resolve) {
         ctx.draw(false, function () {
@@ -439,5 +754,10 @@ module.exports = {
   getImageInfo: getImageInfo,
   renderMoodCard: renderMoodCard,
   renderIncomeCard: renderIncomeCard,
+  renderWeeklyCard: renderWeeklyCard,
+  renderMonthlyCard: renderMonthlyCard,
+  renderStreakCard: renderStreakCard,
+  renderWishCard: renderWishCard,
+  renderCalmCard: renderCalmCard,
   drawSharePoster: drawSharePoster
 }

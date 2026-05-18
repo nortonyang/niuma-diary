@@ -16,6 +16,11 @@
     <view class="mode-row">
       <view class="mode-pill {{moodModeClass}}" bindtap="redrawMood">指数卡</view>
       <view class="mode-pill {{incomeModeClass}}" bindtap="redrawIncome">赚钱卡</view>
+      <view wx:if="{{isWeeklyCard}}" class="mode-pill {{weeklyModeClass}}" bindtap="redrawWeekly">周复盘</view>
+      <view wx:if="{{isMonthlyCard}}" class="mode-pill {{monthlyModeClass}}" bindtap="redrawMonthly">月复盘</view>
+      <view wx:if="{{isStreakCard}}" class="mode-pill {{streakModeClass}}" bindtap="redrawStreak">打卡成就</view>
+      <view wx:if="{{isWishCard}}" class="mode-pill {{wishModeClass}}" bindtap="redrawWish">愿望卡</view>
+      <view wx:if="{{isCalmCard}}" class="mode-pill {{calmModeClass}}" bindtap="redrawCalm">冷静卡</view>
     </view>
   </view>
 
@@ -23,7 +28,7 @@
     <view class="share-card-shell">
       <image
         class="share-card-image"
-        src="{{cardImage}}"
+        src="{{((isWeeklyCard || isMonthlyCard) && cardFile) ? cardFile : cardImage}}"
         mode="widthFix"
       />
       <view wx:if="{{isMoodCard}}" class="mood-dynamic-layer">

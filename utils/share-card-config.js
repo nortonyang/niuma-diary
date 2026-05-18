@@ -10,6 +10,26 @@ const CARD_IMAGES = {
   income: {
     display: '../../assets/images/share-cards/income-card.jpg',
     file: '/assets/images/share-cards/income-card.jpg'
+  },
+  weekly: {
+    display: '../../assets/images/share-cards/mood-card-template.jpg',
+    file: '/assets/images/share-cards/mood-card-template.jpg'
+  },
+  monthly: {
+    display: '../../assets/images/share-cards/mood-card-template.jpg',
+    file: '/assets/images/share-cards/mood-card-template.jpg'
+  },
+  streak: {
+    display: '../../assets/images/share-cards/mood-card-template.jpg',
+    file: '/assets/images/share-cards/mood-card-template.jpg'
+  },
+  wish: {
+    display: '../../assets/images/share-cards/mood-card-template.jpg',
+    file: '/assets/images/share-cards/mood-card-template.jpg'
+  },
+  calm: {
+    display: '../../assets/images/share-cards/mood-card-template.jpg',
+    file: '/assets/images/share-cards/mood-card-template.jpg'
   }
 }
 
@@ -98,30 +118,44 @@ function getMoodVisualState(index) {
 
 function buildTypeState(type) {
   var isIncome = type === 'income'
-  var card = isIncome ? CARD_IMAGES.income : MOOD_TEMPLATE_IMAGE
+  var isWeekly = type === 'weekly'
+  var isMonthly = type === 'monthly'
+  var isStreak = type === 'streak'
+  var isWish = type === 'wish'
+  var isCalm = type === 'calm'
+  var card = isIncome ? CARD_IMAGES.income : ((isWeekly || isMonthly || isStreak || isWish || isCalm) ? CARD_IMAGES.weekly : MOOD_TEMPLATE_IMAGE)
   var moodRecord = getTodayMoodRecord()
   var moodIndex = clampIndex(moodRecord.quitIndex)
   var moodVisual = getMoodVisualState(moodIndex)
-  var isMoodCard = !isIncome
-  var isIncomeCard = isIncome
+  var isMoodCard = !isIncome && !isWeekly && !isMonthly && !isStreak && !isWish && !isCalm
 
   return {
-    cardTitle: isIncome ? '今日赚钱卡' : '今日班味指数',
+    cardTitle: isIncome ? '今日赚钱卡' : (isWeekly ? '最近 7 天复盘' : (isMonthly ? '月度班味复盘' : (isStreak ? '连续打卡成就' : (isWish ? '离开后的愿望' : (isCalm ? '冷静器结论' : '今日班味指数'))))),
     cardHint: isIncome
-      ? '这张卡只展示坚持状态，不展示工资和金额。'
-      : '这张卡会按班味指数生成不同状态，不展示指数数字。',
+      ? '这张卡只展示坚持状态，不展示工资 and 金额。'
+      : (isWeekly ? '展示过去 7 天的平均状态和坚持成果。' : (isMonthly ? '展示全月班味统计，不含吐槽原文。' : (isStreak ? '展示你连续记录的天数，不含任何压力细节。' : (isWish ? '展示你为未来留下的退路愿望。' : (isCalm ? '展示冷静器得出的建议结论。' : '这张卡会按班味指数生成不同状态，不展示指数数字。'))))),
     pageHint: isIncome
       ? '赚钱卡默认脱敏，只表达今天又撑住了。'
-      : '指数卡默认脱敏，只表达今天的牛马状态。',
-    previewBadge: isIncome ? '赚钱卡' : '指数卡',
-    moodModeClass: isIncome ? '' : 'active',
+      : (isWeekly ? '周复盘卡整合了过去一周的班味统计。' : (isMonthly ? '月复盘卡展示当月班味数据。' : (isStreak ? '连续打卡卡展示你的坚持成果。' : (isWish ? '愿望卡展示你对未来的期待。' : (isCalm ? '冷静卡展示当前的理智建议。' : '指数卡默认脱敏，只表达今天的牛马状态。'))))),
+    previewBadge: isIncome ? '赚钱卡' : (isWeekly ? '周复盘' : (isMonthly ? '月复盘' : (isStreak ? '连续打卡' : (isWish ? '愿望卡' : (isCalm ? '冷静卡' : '指数卡'))))),
+    moodModeClass: (isMoodCard) ? 'active' : '',
     incomeModeClass: isIncome ? 'active' : '',
+    weeklyModeClass: isWeekly ? 'active' : '',
+    monthlyModeClass: isMonthly ? 'active' : '',
+    streakModeClass: isStreak ? 'active' : '',
+    wishModeClass: isWish ? 'active' : '',
+    calmModeClass: isCalm ? 'active' : '',
     cardImage: card.display,
     cardFile: card.file,
-    primaryButtonText: isIncome ? '保存这份坚持' : '分享我的状态',
-    actionButtonImage: isIncome ? '' : MOOD_BUTTON_IMAGE.display,
+    primaryButtonText: (isIncome || isStreak || isWish || isCalm) ? '保存这份坚持' : '分享复盘状态',
+    actionButtonImage: (isIncome || isStreak || isWish || isCalm) ? '' : MOOD_BUTTON_IMAGE.display,
     isMoodCard: isMoodCard,
-    isIncomeCard: isIncomeCard,
+    isIncomeCard: isIncome,
+    isWeeklyCard: isWeekly,
+    isMonthlyCard: isMonthly,
+    isStreakCard: isStreak,
+    isWishCard: isWish,
+    isCalmCard: isCalm,
     moodIndex: moodIndex,
     moodVisual: moodVisual,
     moodSceneClass: 'mood-scene-' + moodVisual.scene

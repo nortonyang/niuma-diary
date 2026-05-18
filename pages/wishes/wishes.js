@@ -10,6 +10,13 @@ function categoryIndex(value) {
   return index >= 0 ? index : 0
 }
 
+function statusIndex(value) {
+  var index = constants.WISH_STATUSES.findIndex(function (item) {
+    return item.value === value
+  })
+  return index >= 0 ? index : 0
+}
+
 function emptyForm() {
   return {
     id: '',
@@ -17,6 +24,9 @@ function emptyForm() {
     editorTitle: '新增愿望',
     category: constants.WISH_CATEGORIES[0].value,
     categoryIndex: 0,
+    progressStatus: 'todo',
+    statusIndex: 0,
+    pinned: false,
     estimatedCost: '',
     firstStep: ''
   }
@@ -45,6 +55,9 @@ Page({
     categoryLabels: constants.WISH_CATEGORIES.map(function (item) {
       return item.label
     }),
+    statusLabels: constants.WISH_STATUSES.map(function (item) {
+      return item.label
+    }),
     form: emptyForm()
   },
 
@@ -56,6 +69,7 @@ Page({
     var wishes = storage.getWishes().map(function (wish) {
       return Object.assign({}, wish, {
         categoryLabel: constants.findLabel(constants.WISH_CATEGORIES, wish.category),
+        statusLabel: constants.findLabel(constants.WISH_STATUSES, wish.progressStatus),
         costText: wish.estimatedCost ? '预计花费：' + wish.estimatedCost + ' 元' : '预算先不急，之后再补',
         stepText: wish.firstStep ? '第一小步：' + wish.firstStep : '第一小步还没写，可以后面再补'
       })
@@ -94,6 +108,7 @@ Page({
     var wishes = storage.getWishes().map(function (wish) {
       return Object.assign({}, wish, {
         categoryLabel: constants.findLabel(constants.WISH_CATEGORIES, wish.category),
+        statusLabel: constants.findLabel(constants.WISH_STATUSES, wish.progressStatus),
         costText: wish.estimatedCost ? '预计花费：' + wish.estimatedCost + ' 元' : '预算先不急，之后再补',
         stepText: wish.firstStep ? '第一小步：' + wish.firstStep : '第一小步还没写，可以后面再补'
       })
@@ -138,10 +153,20 @@ Page({
         editorTitle: '编辑愿望',
         category: wish.category,
         categoryIndex: categoryIndex(wish.category),
+        progressStatus: wish.progressStatus || 'todo',
+        statusIndex: statusIndex(wish.progressStatus || 'todo'),
+        pinned: !!wish.pinned,
         estimatedCost: wish.estimatedCost || '',
         firstStep: wish.firstStep || '',
         createdAt: wish.createdAt
       }
+    })
+  },
+
+  shareWish: function (event) {
+    var id = event.currentTarget.dataset.id
+    wx.navigateTo({
+      url: '/pages/share/share?type=wish&id=' + id
     })
   },
 
@@ -164,6 +189,14 @@ Page({
     this.setData({
       'form.categoryIndex': index,
       'form.category': constants.WISH_CATEGORIES[index].value
+    })
+  },
+
+  onStatusChange: function (event) {
+    var index = Number(event.detail.value) || 0
+    this.setData({
+      'form.statusIndex': index,
+      'form.progressStatus': constants.WISH_STATUSES[index].value
     })
   },
 
@@ -215,6 +248,32 @@ Page({
       .catch(function () {
         this.setData({
           cloudSyncText: '云同步失败，已加入待处理队列'
+        })
+      }.bind(this))
+  },
+
+  togglePin: function (event) {
+    var id = event.currentTarget.dataset.id
+    storage.toggleWishPin(id)
+    this.loadWishesWithoutCloud()
+
+    // Sync all wishes to cloud because pinning affects all (unpinning others)
+    var nextWishes = storage.getWishes()
+    this.setData({
+      cloudSyncText: '正在同步云端...'
+    })
+
+    Promise.all(nextWishes.map(function (wish) {
+      return sync.syncWish(wish)
+    }))
+      .then(function () {
+        this.setData({
+          cloudSyncText: '云端同步成功'
+        })
+      }.bind(this))
+      .catch(function () {
+        this.setData({
+          cloudSyncText: '云端同步失败，已加入待处理队列'
         })
       }.bind(this))
   },

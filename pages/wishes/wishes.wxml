@@ -16,13 +16,18 @@
   <view class="wish-list" wx:if="{{hasWishes}}">
     <view class="wish-card" wx:for="{{wishes}}" wx:key="id">
       <view class="wish-top">
-        <text class="wish-tag">{{item.categoryLabel}}</text>
+        <view class="wish-tags">
+          <text class="wish-tag">{{item.categoryLabel}}</text>
+          <text class="wish-tag status-tag">{{item.statusLabel}}</text>
+        </view>
         <view class="wish-actions">
-          <text data-id="{{item.id}}" bindtap="openEdit">编辑</text>
-          <text data-id="{{item.id}}" bindtap="removeWish">删除</text>
+          <text class="action-item pin-item {{item.pinned ? 'active' : ''}}" data-id="{{item.id}}" bindtap="togglePin">{{item.pinned ? '已重点' : '设为重点'}}</text>
+          <text class="action-item" data-id="{{item.id}}" bindtap="shareWish">分享</text>
+          <text class="action-item" data-id="{{item.id}}" bindtap="openEdit">编辑</text>
+          <text class="action-item" data-id="{{item.id}}" bindtap="removeWish">删除</text>
         </view>
       </view>
-      <text class="wish-title">{{item.title}}</text>
+      <text class="wish-title">{{item.pinned ? '重点 · ' : ''}}{{item.title}}</text>
       <text class="wish-meta">{{item.costText}}</text>
       <text class="wish-step">{{item.stepText}}</text>
     </view>
@@ -56,6 +61,13 @@
         <text class="label">分类</text>
         <picker value="{{form.categoryIndex}}" range="{{categoryLabels}}" bindchange="onCategoryChange">
           <view class="picker-shell">{{categoryLabels[form.categoryIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="label">当前状态</text>
+        <picker value="{{form.statusIndex}}" range="{{statusLabels}}" bindchange="onStatusChange">
+          <view class="picker-shell">{{statusLabels[form.statusIndex]}}</view>
         </picker>
       </view>
 

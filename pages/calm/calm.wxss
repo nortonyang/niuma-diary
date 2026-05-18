@@ -195,10 +195,32 @@
 }
 
 .result-copy {
-  margin: 18rpx 0 28rpx;
+  margin: 18rpx 0 32rpx;
   color: #e9f4ec;
   font-size: 27rpx;
   line-height: 1.6;
+}
+
+.result-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.result-actions .secondary-button,
+.result-actions .primary-button {
+  flex: 1;
+  margin: 0;
+}
+
+.result-actions .secondary-button {
+  background: #3a4b41;
+  color: #ffffff;
+  border: 0;
+}
+
+.share-result-btn {
+  background: #ffffff !important;
+  color: #253b36 !important;
 }
 
 .result-button {

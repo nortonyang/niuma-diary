@@ -52,20 +52,50 @@ function getMonthRecords(records, year, month) {
     })
 }
 
-function summarizeMonth(records, year, month) {
-  var monthRecords = getMonthRecords(records, year, month)
+function summarizeMonth(records, year, month, settings) {
+  var dates = Object.keys(records)
+    .filter(function (date) {
+      return dateUtil.isInMonth(date, year, month)
+    })
+    .sort()
+
   var reasonCounts = {}
   var totalIndex = 0
   var maxIndex = 0
+  var maxIndexDate = ''
 
-  monthRecords.forEach(function (record) {
-    var index = Number(record.quitIndex) || 0
-    totalIndex += index
-    maxIndex = Math.max(maxIndex, index)
-    ;(record.reasons || []).forEach(function (reason) {
-      reasonCounts[reason] = (reasonCounts[reason] || 0) + 1
-    })
-  })
+  var currentConsecutive = 0
+  var maxConsecutive = 0
+
+  // To calculate consecutive days correctly, we need to consider all days in the month
+  var daysInMonth = dateUtil.getDaysInMonth(year, month)
+  for (var i = 1; i <= daysInMonth; i++) {
+    var dateKey = dateUtil.formatDate(new Date(year, month - 1, i))
+    var record = records[dateKey]
+
+    if (record) {
+      var index = Number(record.quitIndex) || 0
+      totalIndex += index
+
+      if (index >= maxIndex) {
+        maxIndex = index
+        maxIndexDate = dateKey
+      }
+
+      if (index >= 85) {
+        currentConsecutive++
+        maxConsecutive = Math.max(maxConsecutive, currentConsecutive)
+      } else {
+        currentConsecutive = 0
+      }
+
+      ;(record.reasons || []).forEach(function (reason) {
+        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1
+      })
+    } else {
+      currentConsecutive = 0
+    }
+  }
 
   var topReasons = Object.keys(reasonCounts)
     .sort(function (left, right) {
@@ -77,12 +107,64 @@ function summarizeMonth(records, year, month) {
     })
     .filter(Boolean)
 
+  var income = settings ? calculateIncome(settings, dates.length) : null
+
   return {
-    count: monthRecords.length,
-    averageIndex: monthRecords.length ? Math.round(totalIndex / monthRecords.length) : 0,
+    count: dates.length,
+    averageIndex: dates.length ? Math.round(totalIndex / dates.length) : 0,
     maxIndex: maxIndex,
+    maxIndexDate: maxIndexDate,
+    maxIndexDateText: maxIndexDate ? dateUtil.formatDisplayDate(maxIndexDate) : '',
+    maxConsecutiveHighPressure: maxConsecutive,
     topReasons: topReasons,
-    topReasonsText: topReasons.length ? topReasons.join('、') : '暂无'
+    topReasonsText: topReasons.length ? topReasons.join('、') : '暂无',
+    income: income
+  }
+}
+
+function summarizeRecentDays(records, days, settings) {
+  var dates = dateUtil.getRecentDates(days)
+  var recentRecords = dates.map(function (date) {
+    return records[date]
+  }).filter(Boolean)
+
+  var totalIndex = 0
+  var maxIndex = 0
+  var highPressureCount = 0
+  var reasonCounts = {}
+
+  recentRecords.forEach(function (record) {
+    var index = Number(record.quitIndex) || 0
+    totalIndex += index
+    maxIndex = Math.max(maxIndex, index)
+    if (index >= 85) {
+      highPressureCount++
+    }
+    ;(record.reasons || []).forEach(function (reason) {
+      reasonCounts[reason] = (reasonCounts[reason] || 0) + 1
+    })
+  })
+
+  var topReasons = Object.keys(reasonCounts)
+    .sort(function (a, b) {
+      return reasonCounts[b] - reasonCounts[a]
+    })
+    .slice(0, 3)
+    .map(function (reason) {
+      return constants.findLabel(constants.REASONS, reason)
+    })
+    .filter(Boolean)
+
+  var income = calculateIncome(settings, recentRecords.length)
+
+  return {
+    count: recentRecords.length,
+    averageIndex: recentRecords.length ? Math.round(totalIndex / recentRecords.length) : 0,
+    maxIndex: maxIndex,
+    highPressureCount: highPressureCount,
+    topReasons: topReasons,
+    topReasonsText: topReasons.length ? topReasons.join('、') : '暂无',
+    income: income
   }
 }
 
@@ -95,10 +177,45 @@ function classForQuitIndex(index) {
   return 'level-0'
 }
 
+function calculateStreak(records, today) {
+  var streak = 0
+  var currentDate = dateUtil.parseDate(today)
+
+  // Check today
+  if (records[today]) {
+    streak++
+  } else {
+    // If no record today, check if there was a record yesterday to keep the streak alive
+    var yesterday = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000)
+    var yesterdayKey = dateUtil.formatDate(yesterday)
+    if (!records[yesterdayKey]) {
+      return 0
+    }
+  }
+
+  // Iterate backwards starting from yesterday
+  var checkDate = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000)
+  while (true) {
+    var key = dateUtil.formatDate(checkDate)
+    if (records[key]) {
+      streak++
+      checkDate = new Date(checkDate.getTime() - 24 * 60 * 60 * 1000)
+    } else {
+      break
+    }
+    // Safety break
+    if (streak > 3650) break
+  }
+
+  return streak
+}
+
 module.exports = {
   money: money,
   calculateIncome: calculateIncome,
   getMonthRecords: getMonthRecords,
   summarizeMonth: summarizeMonth,
-  classForQuitIndex: classForQuitIndex
+  summarizeRecentDays: summarizeRecentDays,
+  classForQuitIndex: classForQuitIndex,
+  calculateStreak: calculateStreak
 }

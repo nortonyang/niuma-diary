@@ -1,7 +1,10 @@
 <view class="page today-page">
   <view class="today-header">
     <view class="brand-row">
-      <text class="brand-name">留马日记</text>
+      <view>
+        <text class="brand-name">留马日记</text>
+        <view class="streak-tag" wx:if="{{streak > 0}}">已连续打卡 {{streak}} 天</view>
+      </view>
       <text class="header-date">{{headerDate}}</text>
     </view>
     <view class="header-subtitle">每天都想走，但先记一下</view>
@@ -133,8 +136,17 @@
     <text class="income-arrow">›</text>
   </view>
 
+  <view class="wish-card-mini section" wx:if="{{pinnedWish}}" bindtap="openWishes">
+    <view class="wish-mini-content">
+      <text class="wish-mini-label">重点愿望</text>
+      <text class="wish-mini-title">{{pinnedWish.title}}</text>
+    </view>
+    <text class="wish-mini-arrow">›</text>
+  </view>
+
   <view class="quiet-links">
     <text class="quiet-link" data-type="index" bindtap="openShare">生成指数卡</text>
+    <text class="quiet-link" data-type="streak" bindtap="openShare">成就卡</text>
     <text class="quiet-link" bindtap="openCalm">离职冷静器</text>
     <text class="quiet-link" bindtap="openChecklist">准备清单</text>
   </view>

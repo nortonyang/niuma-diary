@@ -25,6 +25,7 @@ function monthSubtitle(summary) {
 
 Page({
   data: {
+    activeTab: 'month', // 'month' | 'week'
     year: 0,
     month: 0,
     monthTitle: '',
@@ -32,6 +33,7 @@ Page({
     weekdays: ['一', '二', '三', '四', '五', '六', '日'],
     cells: [],
     summary: calculations.summarizeMonth({}, 2026, 1),
+    weeklySummary: calculations.summarizeRecentDays({}, 7, {}),
     selectedDate: '',
     selectedDisplayDate: '',
     selectedRecord: null
@@ -46,13 +48,15 @@ Page({
       month: month
     })
     this.renderCalendar()
+    this.renderWeeklySummary()
   },
 
   renderCalendar: function () {
     var records = storage.getDailyRecords()
+    var settings = storage.getSettings()
     var today = dateUtil.getToday()
     var selectedDate = this.data.selectedDate
-    var summary = calculations.summarizeMonth(records, this.data.year, this.data.month)
+    var summary = calculations.summarizeMonth(records, this.data.year, this.data.month, settings)
 
     if (!selectedDate && dateUtil.isInMonth(today, this.data.year, this.data.month) && records[today]) {
       selectedDate = today
@@ -77,6 +81,23 @@ Page({
       summary: summary,
       selectedRecord: selectedDate ? enrichRecord(records[selectedDate]) : null,
       selectedDisplayDate: selectedDate ? dateUtil.formatDisplayDate(selectedDate) : ''
+    })
+  },
+
+  renderWeeklySummary: function () {
+    var records = storage.getDailyRecords()
+    var settings = storage.getSettings()
+    var weeklySummary = calculations.summarizeRecentDays(records, 7, settings)
+    this.setData({
+      weeklySummary: weeklySummary
+    })
+  },
+
+  switchTab: function (event) {
+    var tab = event.currentTarget.dataset.tab
+    if (tab === this.data.activeTab) return
+    this.setData({
+      activeTab: tab
     })
   },
 
@@ -107,6 +128,24 @@ Page({
       selectedDate: date
     })
     this.renderCalendar()
+  },
+
+  goToToday: function () {
+    wx.switchTab({
+      url: '/pages/today/today'
+    })
+  },
+
+  shareWeeklyReport: function () {
+    wx.navigateTo({
+      url: '/pages/share/share?type=weekly'
+    })
+  },
+
+  shareMonthlyReport: function () {
+    wx.navigateTo({
+      url: '/pages/share/share?type=monthly&year=' + this.data.year + '&month=' + this.data.month
+    })
   },
 
   onShareAppMessage: function () {

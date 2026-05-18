@@ -152,6 +152,12 @@ Page({
     })
   },
 
+  shareResult: function () {
+    wx.navigateTo({
+      url: '/pages/share/share?type=calm&title=' + encodeURIComponent(this.data.result.title) + '&copy=' + encodeURIComponent(this.data.result.copy) + '&pressure=' + this.data.pressurePercent
+    })
+  },
+
   onShareAppMessage: function () {
     return {
       title: '离职前先冷静一下',

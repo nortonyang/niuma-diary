@@ -105,6 +105,12 @@
   gap: 20rpx;
 }
 
+.wish-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
 .wish-tag {
   min-width: 84rpx;
   padding: 8rpx 14rpx;
@@ -116,6 +122,11 @@
   text-align: center;
 }
 
+.status-tag {
+  background: #fdf5e8;
+  color: #a06e2e;
+}
+
 .wish-actions {
   display: flex;
   flex-wrap: wrap;
@@ -124,6 +135,14 @@
   color: #7f7467;
   font-size: 24rpx;
   font-weight: 800;
+}
+
+.action-item {
+  padding: 10rpx 0;
+}
+
+.pin-item.active {
+  color: #de5a32;
 }
 
 .wish-title {

@@ -167,6 +167,8 @@ function normalizeWish(raw) {
     category: raw.category || 'rest',
     estimatedCost: raw.estimatedCost || '',
     firstStep: raw.firstStep || '',
+    progressStatus: raw.progressStatus || 'todo',
+    pinned: !!raw.pinned,
     createdAt: createdAt,
     updatedAt: updatedAt
   }
@@ -354,6 +356,8 @@ function saveWish(wish) {
     category: wish.category || 'rest',
     estimatedCost: wish.estimatedCost || '',
     firstStep: wish.firstStep || '',
+    progressStatus: wish.progressStatus || 'todo',
+    pinned: !!wish.pinned,
     createdAt: wish.createdAt,
     updatedAt: wish.updatedAt
   }

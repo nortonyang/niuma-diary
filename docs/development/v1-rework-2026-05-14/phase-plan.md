@@ -50,7 +50,7 @@
 | S4 | 验证和回归文档更新 | ST-007 | S1-S3 完成 | 验证命令、人工真机清单、需求完成度更新齐全 | 已完成 (待提交清理) |
 | S5 | 清空后队列清理返工 | ST-008 | RF-009 已确认 | 清空本地/云端后 pending queue 不会重放旧任务 | 已完成 |
 | S6 | pending 重试冲突保护 | ST-009 | RF-010 已确认 | pending save 重试不会覆盖云端较新数据 | 已完成 |
-| S7 | 提交清理 | 提交前清理 | 所有业务返工通过 | `git diff --check` 通过，无 trailing whitespace | 未开始 |
+| S7 | 提交清理 | 提交前清理 | 所有业务返工通过 | `git diff --check` 通过，无 trailing whitespace | 已完成 |
 
 ## 验证策略
 

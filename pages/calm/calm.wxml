@@ -70,6 +70,9 @@
     <text class="result-label">当前准备状态</text>
     <text class="result-title">{{result.title}}</text>
     <text class="result-copy">{{result.copy}}</text>
-    <button class="secondary-button result-button" bindtap="openChecklist">打开准备清单</button>
+    <view class="result-actions">
+      <button class="secondary-button" bindtap="openChecklist">准备清单</button>
+      <button class="primary-button share-result-btn" bindtap="shareResult">分享结论</button>
+    </view>
   </view>
 </view>

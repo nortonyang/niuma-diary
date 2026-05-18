@@ -51,6 +51,13 @@ const WISH_CATEGORIES = [
   { value: 'other', label: '其他' }
 ]
 
+const WISH_STATUSES = [
+  { value: 'todo', label: '未开始' },
+  { value: 'doing', label: '准备中' },
+  { value: 'done', label: '已完成' },
+  { value: 'paused', label: '暂时放下' }
+]
+
 const DAILY_COPY = [
   '今天又是努力不裸辞的一天。',
   '先记录，再决定。',
@@ -100,6 +107,7 @@ module.exports = {
   MOODS: MOODS,
   REASONS: REASONS,
   WISH_CATEGORIES: WISH_CATEGORIES,
+  WISH_STATUSES: WISH_STATUSES,
   CHECKLIST_STAGES: CHECKLIST_STAGES,
   DEFAULT_CHECKLIST_ITEMS: DEFAULT_CHECKLIST_ITEMS,
   DAILY_COPY: DAILY_COPY,

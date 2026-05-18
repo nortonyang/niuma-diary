@@ -10,7 +10,7 @@
 | 4 | 清单按 `id + updatedAt` 合并 | Gemini | `utils/storage.js`, `pages/checklist/checklist.js` | 手动构造清单合并验证 | 已完成 |
 | 5 | 愿望按 `id + updatedAt` 合并 | Gemini | `utils/storage.js`, `pages/wishes/wishes.js` | 手动构造愿望合并验证 | 已完成 |
 | 6 | 云端清空改为云函数按 `OPENID` 删除 | Gemini | `utils/cloud-data.js`, `pages/me/me.js`, `cloudfunctions/clearUserData/`, `docs/cloudbase-setup.md` | 云函数部署后真机验证 | 已完成 (待云函数真机验证) |
-| 7 | 更新完成度和审核记录 | Codex 5.5 | `docs/future-development-requirements.md`, 本目录审核文档 | Codex 审核 | 进行中 |
+| 7 | 更新完成度和审核记录 | Codex 5.5 | `docs/future-development-requirements.md`, 本目录审核文档 | Codex 审核 | 已完成 |
 
 ## 完成度
 
