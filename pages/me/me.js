@@ -81,6 +81,10 @@ function buildExportPayload(snapshot) {
   }
 }
 
+function hasValidReminderTemplate(templateId) {
+  return !!templateId && templateId !== 'REPLACE_WITH_YOUR_TEMPLATE_ID'
+}
+
 Page({
   data: {
     settings: {},
@@ -213,13 +217,18 @@ Page({
 
     if (enabled) {
       // Request subscription message authorization
-      var templateId = storage.getReminderSettings().templateId
-      if (templateId && templateId !== 'REPLACE_WITH_YOUR_TEMPLATE_ID') {
+      var reminderSettings = storage.getReminderSettings()
+      var templateId = reminderSettings.templateId
+
+      if (hasValidReminderTemplate(templateId)) {
         wx.requestSubscribeMessage({
           tmplIds: [templateId],
           success: function (res) {
             if (res[templateId] === 'accept') {
-              self.updateReminder({ enabled: true })
+              self.updateReminder({
+                enabled: true,
+                authorizedAt: Date.now()
+              })
               wx.showToast({ title: '已开启提醒', icon: 'success' })
             } else {
               wx.showToast({ title: '授权后才能接收提醒', icon: 'none' })
@@ -234,12 +243,19 @@ Page({
         })
       } else {
         // Fallback if no template ID is configured
-        // RA-20260519-002: Clearly state this is a local preference
-        this.updateReminder({ enabled: true })
-        wx.showToast({ title: '已开启本地提醒偏好', icon: 'success' })
+        // REQ-1501: Clearly state this needs configuration
+        wx.showModal({
+          title: '提醒配置未完成',
+          content: '由于开发者尚未配置微信订阅模板 ID，目前无法在云端启用真实推送。',
+          showCancel: false,
+          success: function () {
+            self.updateReminder({ enabled: true })
+            wx.showToast({ title: '已开启本地偏好', icon: 'none' })
+          }
+        })
       }
     } else {
-      this.updateReminder({ enabled: false })
+      this.updateReminder({ enabled: false, authorizedAt: 0 })
       wx.showToast({ title: '已关闭提醒', icon: 'success' })
     }
   },
@@ -255,6 +271,35 @@ Page({
     this.setData({
       reminder: nextReminder
     })
+
+    // REQ-1501: Sync to cloud if enabled
+    if (this.data.isCloudEnabled) {
+      this.syncReminderToCloud(nextReminder)
+    }
+  },
+
+  syncReminderToCloud: function (reminder) {
+    var settings = storage.getSettings()
+    var canDeliver = !!reminder.enabled &&
+      hasValidReminderTemplate(reminder.templateId) &&
+      Number(reminder.authorizedAt) > 0
+    var payload = Object.assign({}, settings, {
+      reminderEnabled: canDeliver,
+      reminderTime: reminder.time,
+      reminderTemplateId: hasValidReminderTemplate(reminder.templateId) ? reminder.templateId : '',
+      reminderAuthorizedAt: reminder.authorizedAt || 0,
+      updatedAt: Date.now()
+    })
+
+    // We don't save these to local settings storage as they are separate,
+    // but we sync them to the same user_settings collection in cloud.
+    sync.syncSettings(payload)
+      .then(function () {
+        console.log('Reminder settings synced to cloud')
+      })
+      .catch(function (err) {
+        console.error('Sync reminder settings failed', err)
+      })
   },
 
   retryCloudSync: function () {

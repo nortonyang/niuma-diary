@@ -154,6 +154,10 @@ function normalizeSettings(raw) {
     monthlySalary: raw.monthlySalary || '',
     workDaysPerMonth: Number(raw.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(raw.workHoursPerDay) || 8,
+    reminderEnabled: !!raw.reminderEnabled,
+    reminderTime: raw.reminderTime || '20:00',
+    reminderTemplateId: raw.reminderTemplateId || '',
+    reminderAuthorizedAt: Number(raw.reminderAuthorizedAt) || 0,
     updatedAt: updatedAt
   }
 }
@@ -334,6 +338,10 @@ function saveSettings(settings) {
     monthlySalary: settings.monthlySalary || '',
     workDaysPerMonth: Number(settings.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(settings.workHoursPerDay) || 8,
+    reminderEnabled: !!settings.reminderEnabled,
+    reminderTime: settings.reminderTime || '20:00',
+    reminderTemplateId: settings.reminderTemplateId || '',
+    reminderAuthorizedAt: Number(settings.reminderAuthorizedAt) || 0,
     updatedAt: settings.updatedAt
   }
   return upsertItem(COLLECTIONS.USER_SETTINGS, null, payload, normalizeSettings)

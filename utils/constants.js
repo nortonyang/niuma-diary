@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS = {
 const DEFAULT_REMINDER_SETTINGS = {
   enabled: false,
   time: '20:00',
-  templateId: 'REPLACE_WITH_YOUR_TEMPLATE_ID'
+  templateId: 'REPLACE_WITH_YOUR_TEMPLATE_ID',
+  authorizedAt: 0
 }
 
 const MOODS = [
