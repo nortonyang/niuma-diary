@@ -359,6 +359,35 @@ function deleteChecklistItem(id) {
   }))
 }
 
+function getCalmHistory() {
+  var history = readStorage(constants.STORAGE_KEYS.CALM_HISTORY, [])
+  if (!Array.isArray(history)) {
+    return []
+  }
+  return history
+}
+
+function saveCalmHistoryItem(item) {
+  var history = getCalmHistory()
+  var now = Date.now()
+  var nextItem = Object.assign({}, item, {
+    id: item.id || 'calm_' + now,
+    createdAt: item.createdAt || now,
+    updatedAt: now
+  })
+  history.unshift(nextItem)
+  // Keep last 50 records to avoid storage bloat
+  writeStorage(constants.STORAGE_KEYS.CALM_HISTORY, history.slice(0, 50))
+  return nextItem
+}
+
+function deleteCalmHistoryItem(id) {
+  var nextHistory = getCalmHistory().filter(function (item) {
+    return item.id !== id
+  })
+  writeStorage(constants.STORAGE_KEYS.CALM_HISTORY, nextHistory)
+}
+
 function getSettings() {
   return normalizeSettings(readStorage(constants.STORAGE_KEYS.USER_SETTINGS, constants.DEFAULT_SETTINGS))
 }
@@ -400,6 +429,7 @@ function getStorageDebugSummary() {
   var wishEditorDraft = getWishEditorDraft()
   var settings = getSettings()
   var checklistItems = getChecklistItems()
+  var calmHistory = getCalmHistory()
   var checklistDoneCount = checklistItems.filter(function (item) {
     return item.completed
   }).length
@@ -454,6 +484,12 @@ function getStorageDebugSummary() {
         key: constants.STORAGE_KEYS.CHECKLIST_ITEMS,
         countText: checklistItems.length + ' 项',
         statusText: checklistDoneCount + '/' + checklistItems.length + ' 已完成'
+      },
+      {
+        label: '冷静器历史',
+        key: constants.STORAGE_KEYS.CALM_HISTORY,
+        countText: calmHistory.length + ' 条',
+        statusText: calmHistory.length ? '记录已存档' : '暂无历史'
       }
     ]
   }
@@ -482,7 +518,8 @@ function getStorageDebugSnapshot() {
       wishes: getWishes(),
       wishEditorDraft: getWishEditorDraft(),
       settings: getSettings(),
-      checklistItems: getChecklistItems()
+      checklistItems: getChecklistItems(),
+      calmHistory: getCalmHistory()
     }
   }
 }
@@ -494,6 +531,7 @@ function clearAllData() {
   wx.removeStorageSync(constants.STORAGE_KEYS.AFTER_QUIT_WISHES)
   wx.removeStorageSync(constants.STORAGE_KEYS.USER_SETTINGS)
   wx.removeStorageSync(constants.STORAGE_KEYS.CHECKLIST_ITEMS)
+  wx.removeStorageSync(constants.STORAGE_KEYS.CALM_HISTORY)
   
   // RF-009: Also clear sync queue and status to prevent ghost updates
   wx.removeStorageSync('niuma_pending_sync_queue')
@@ -523,6 +561,9 @@ module.exports = {
   toggleChecklistItem: toggleChecklistItem,
   saveChecklistItem: saveChecklistItem,
   deleteChecklistItem: deleteChecklistItem,
+  getCalmHistory: getCalmHistory,
+  saveCalmHistoryItem: saveCalmHistoryItem,
+  deleteCalmHistoryItem: deleteCalmHistoryItem,
   getSettings: getSettings,
   saveSettings: saveSettings,
   getSyncStatus: getSyncStatus,

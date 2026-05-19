@@ -71,8 +71,40 @@
     <text class="result-title">{{result.title}}</text>
     <text class="result-copy">{{result.copy}}</text>
     <view class="result-actions">
-      <button class="secondary-button" bindtap="openChecklist">准备清单</button>
+      <button class="secondary-button" bindtap="saveResult">保存结果</button>
       <button class="primary-button share-result-btn" bindtap="shareResult">分享结论</button>
+    </view>
+    <view class="result-secondary-actions">
+      <button class="text-button" bindtap="openChecklist">查看准备清单</button>
+    </view>
+  </view>
+
+  <view class="history-section section" wx:if="{{historyItems.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">历史记录</text>
+      <text class="section-subtitle">最近 50 条记录</text>
+    </view>
+
+    <view class="history-list">
+      <view class="history-item" wx:for="{{historyItems}}" wx:key="id">
+        <view class="history-item-header">
+          <text class="history-date">{{item.date}}</text>
+          <text class="history-delete" bindtap="deleteHistoryItem" data-id="{{item.id}}">删除</text>
+        </view>
+        <view class="history-item-body">
+          <view class="history-item-main">
+            <text class="history-result-title">{{item.resultTitle}}</text>
+            <text class="history-result-copy">{{item.resultCopy}}</text>
+          </view>
+          <view class="history-item-stats">
+            <text class="history-stat-badge">{{item.pressurePercent}}% 压力</text>
+          </view>
+        </view>
+        <view class="history-item-footer">
+          <text class="history-detail">持续: {{item.durationText}} | 存款: {{item.runwayText}} | 高压: {{item.highPressureDays}} 天</text>
+          <text class="history-detail history-choice">{{item.choiceSummary}}</text>
+        </view>
+      </view>
     </view>
   </view>
 </view>

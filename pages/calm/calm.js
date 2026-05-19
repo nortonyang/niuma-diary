@@ -30,6 +30,21 @@ function buildPressureSummary(highPressureDays) {
   return '这段时间的高压已经比较明显，别只靠硬扛。'
 }
 
+function formatHistoryItem(item) {
+  var choices = item.choices || {}
+  var choiceSummary = [
+    choices.hasNextIncome ? '有下家/收入' : '暂无下家/收入',
+    choices.hasPendingBenefits ? '权益未处理' : '权益已处理',
+    choices.resumeUpdated ? '简历已更新' : '简历未更新',
+    choices.clearPlan ? '计划明确' : '计划待明确',
+    choices.suddenEvent ? '突发事件触发' : '非突发事件'
+  ].join(' · ')
+
+  return Object.assign({}, item, {
+    choiceSummary: choiceSummary
+  })
+}
+
 Page({
   data: {
     durationOptions: ['刚刚发生', '持续几天', '超过两周', '超过一个月'],
@@ -57,7 +72,8 @@ Page({
     result: {
       title: '先冷静 24 小时',
       copy: '今天情绪很满，先不要把临时冲动当成最终决定。'
-    }
+    },
+    historyItems: []
   },
 
   onShow: function () {
@@ -68,6 +84,13 @@ Page({
       pressureSummary: buildPressureSummary(highPressureDays)
     })
     this.updateResult()
+    this.loadHistory()
+  },
+
+  loadHistory: function () {
+    this.setData({
+      historyItems: storage.getCalmHistory().map(formatHistoryItem)
+    })
   },
 
   onDurationChange: function (event) {
@@ -149,6 +172,46 @@ Page({
   openChecklist: function () {
     wx.navigateTo({
       url: '/pages/checklist/checklist'
+    })
+  },
+
+  saveResult: function () {
+    var item = {
+      date: dateUtil.formatDate(new Date()),
+      resultTitle: this.data.result.title,
+      resultCopy: this.data.result.copy,
+      pressurePercent: this.data.pressurePercent,
+      highPressureDays: this.data.highPressureDays,
+      durationText: this.data.durationOptions[this.data.durationIndex],
+      runwayText: this.data.runwayOptions[this.data.runwayIndex],
+      choices: {
+        hasNextIncome: this.data.hasNextIncome,
+        hasPendingBenefits: this.data.hasPendingBenefits,
+        resumeUpdated: this.data.resumeUpdated,
+        clearPlan: this.data.clearPlan,
+        suddenEvent: this.data.suddenEvent
+      }
+    }
+    storage.saveCalmHistoryItem(item)
+    wx.showToast({
+      title: '已保存到历史',
+      icon: 'success'
+    })
+    this.loadHistory()
+  },
+
+  deleteHistoryItem: function (event) {
+    var that = this
+    var id = event.currentTarget.dataset.id
+    wx.showModal({
+      title: '删除记录',
+      content: '确定要删除这条历史记录吗？',
+      success: function (res) {
+        if (res.confirm) {
+          storage.deleteCalmHistoryItem(id)
+          that.loadHistory()
+        }
+      }
     })
   },
 

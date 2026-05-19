@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   AFTER_QUIT_WISHES: 'niuma_after_quit_wishes',
   USER_SETTINGS: 'niuma_user_settings',
   CHECKLIST_ITEMS: 'niuma_checklist_items',
+  CALM_HISTORY: 'niuma_calm_history',
   SCHEMA_VERSION_INFO: 'niuma_schema_version_info'
 }
 
