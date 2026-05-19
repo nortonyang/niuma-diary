@@ -186,6 +186,7 @@ function normalizeChecklistItem(raw) {
     completed: !!raw.completed,
     custom: !!raw.custom,
     sort: Number(raw.sort) || 0,
+    sourceWishId: raw.sourceWishId || '',
     createdAt: createdAt,
     updatedAt: updatedAt
   }
@@ -391,6 +392,7 @@ function saveChecklistItem(item) {
     completed: !!item.completed,
     custom: !!item.custom,
     sort: Number(item.sort) || 0,
+    sourceWishId: item.sourceWishId || '',
     createdAt: item.createdAt,
     updatedAt: item.updatedAt
   }

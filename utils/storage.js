@@ -251,6 +251,7 @@ function normalizeChecklistItem(item) {
     completed: !!item.completed,
     custom: !!item.custom,
     sort: Number(item.sort) || 0,
+    sourceWishId: item.sourceWishId || '',
     createdAt: createdAt,
     updatedAt: updatedAt
   }

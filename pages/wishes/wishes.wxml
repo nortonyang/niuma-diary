@@ -22,6 +22,7 @@
         </view>
         <view class="wish-actions">
           <text class="action-item pin-item {{item.pinned ? 'active' : ''}}" data-id="{{item.id}}" bindtap="togglePin">{{item.pinned ? '已重点' : '设为重点'}}</text>
+          <text class="action-item" data-id="{{item.id}}" bindtap="convertToChecklist">转为清单</text>
           <text class="action-item" data-id="{{item.id}}" bindtap="shareWish">分享</text>
           <text class="action-item" data-id="{{item.id}}" bindtap="openEdit">编辑</text>
           <text class="action-item" data-id="{{item.id}}" bindtap="removeWish">删除</text>
@@ -82,6 +83,26 @@
       </view>
 
       <button class="primary-button editor-save" bindtap="saveWish">保存愿望</button>
+    </view>
+  </view>
+
+  <view class="editor-mask" wx:if="{{showGenerator}}" bindtap="closeGenerator">
+    <view class="editor-panel" catchtap="noop">
+      <view class="editor-head">
+        <view>
+          <text class="editor-title">生成准备清单</text>
+          <text class="editor-copy">基于你的愿望，我们建议先做这几件事。你可以点击修改，留空则不添加。</text>
+        </view>
+        <text class="close-text" bindtap="closeGenerator">取消</text>
+      </view>
+
+      <view class="generator-list">
+        <view class="field" wx:for="{{generatedItems}}" wx:key="index">
+          <input class="input" value="{{item.title}}" maxlength="32" placeholder="输入准备项" data-index="{{index}}" bindinput="onGeneratedItemInput" />
+        </view>
+      </view>
+
+      <button class="primary-button editor-save" bindtap="saveGeneratedItems">加入清单</button>
     </view>
   </view>
 </view>

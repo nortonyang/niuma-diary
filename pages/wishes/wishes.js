@@ -58,7 +58,10 @@ Page({
     statusLabels: constants.WISH_STATUSES.map(function (item) {
       return item.label
     }),
-    form: emptyForm()
+    form: emptyForm(),
+    showGenerator: false,
+    generatedItems: [],
+    selectedWish: null
   },
 
   onShow: function () {
@@ -209,6 +212,118 @@ Page({
   onStepInput: function (event) {
     this.setData({
       'form.firstStep': event.detail.value
+    })
+  },
+
+  convertToChecklist: function (event) {
+    var id = event.currentTarget.dataset.id
+    var wish = this.data.wishes.find(function (item) {
+      return item.id === id
+    })
+    if (!wish) return
+
+    // Check for duplicates
+    var existingItems = storage.getChecklistItems()
+    var isDuplicate = existingItems.some(function (item) {
+      return item.sourceWishId === id
+    })
+
+    if (isDuplicate) {
+      wx.showModal({
+        title: '提示',
+        content: '该愿望已经生成过清单项了。',
+        showCancel: false
+      })
+      return
+    }
+
+    var suggestions = this.generateChecklistItems(wish)
+    this.setData({
+      selectedWish: wish,
+      generatedItems: suggestions.map(function (title) {
+        return { title: title }
+      }),
+      showGenerator: true
+    })
+  },
+
+  generateChecklistItems: function (wish) {
+    var templates = {
+      travel: ['查攻略和路线', '订机票或酒店', '准备行李清单', '安排行程时间', '预留旅行费用'],
+      study: ['搜索相关课程', '购买学习资料', '制定学习计划', '寻找学习伙伴', '准备学习环境'],
+      career_change: ['梳理核心技能', '修改针对性简历', '调研目标行业', '准备面试作品', '盘点转行存款'],
+      side_project: ['调研市场需求', '确定最小原型', '寻找合作伙伴', '申请必要账号', '制定上线计划'],
+      rest: ['放下电子设备', '补觉恢复体力', '盘点生活开销', '规划休息安排', '告诉亲友决定'],
+      startup: ['完善商业计划', '寻找合伙人', '注册公司/账号', '筹集初始资金', '调研竞争对手'],
+      family: ['推掉不必要社交', '规划陪伴时间', '准备家庭礼物', '协调家庭事务', '记录相处瞬间']
+    }
+    var suggestions = templates[wish.category] || ['具体化行动步骤', '盘点所需资源', '预留充足时间', '迈出第一小步', '完成后的小奖励']
+
+    // Add first step if exists as a suggestion
+    if (wish.firstStep) {
+      suggestions.unshift(wish.firstStep)
+    }
+
+    return suggestions.slice(0, 5)
+  },
+
+  closeGenerator: function () {
+    this.setData({
+      showGenerator: false,
+      selectedWish: null,
+      generatedItems: []
+    })
+  },
+
+  onGeneratedItemInput: function (event) {
+    var index = event.currentTarget.dataset.index
+    var value = event.detail.value
+    var items = this.data.generatedItems.slice()
+    items[index].title = value
+    this.setData({
+      generatedItems: items
+    })
+  },
+
+  saveGeneratedItems: function () {
+    var wish = this.data.selectedWish
+    var itemsToSave = this.data.generatedItems.filter(function (item) {
+      return item.title.trim() !== ''
+    })
+
+    if (itemsToSave.length === 0) {
+      wx.showToast({
+        title: '请至少保留一项',
+        icon: 'none'
+      })
+      return
+    }
+
+    var now = Date.now()
+    var defaultStage = constants.CHECKLIST_STAGES[0].value
+
+    itemsToSave.forEach(function (item, index) {
+      var nextItem = {
+        title: item.title.trim(),
+        stage: defaultStage,
+        completed: false,
+        custom: true,
+        sourceWishId: wish.id,
+        sort: now + index
+      }
+      var saved = storage.saveChecklistItem(nextItem)
+      sync.syncChecklistItem(saved)
+    })
+
+    wx.showToast({
+      title: '已加入清单',
+      icon: 'success'
+    })
+
+    this.setData({
+      showGenerator: false,
+      selectedWish: null,
+      generatedItems: []
     })
   },
 

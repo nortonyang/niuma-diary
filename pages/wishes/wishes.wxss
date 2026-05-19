@@ -246,3 +246,11 @@
 .editor-save {
   margin-top: 30rpx;
 }
+
+.generator-list {
+  margin-top: 20rpx;
+}
+
+.generator-list .field {
+  margin-bottom: 16rpx;
+}
