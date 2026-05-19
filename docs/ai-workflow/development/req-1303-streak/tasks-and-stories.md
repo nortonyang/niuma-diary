@@ -6,7 +6,7 @@
 
 ## 依赖
 
-- 需求文档：`docs/future-development-requirements.md` (REQ-1303)
+- 需求文档：`docs/ai-workflow/future-development-requirements.md` (REQ-1303)
 - 现有逻辑：`utils/calculations.js`, `utils/storage.js`
 - 现有页面：`pages/today/today`, `pages/share/share`
 

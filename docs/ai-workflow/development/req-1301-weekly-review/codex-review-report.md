@@ -2,8 +2,8 @@
 
 ## 审核范围
 
-- 需求文档：`docs/future-development-requirements.md` 的 `REQ-1301`。
-- 开发文档：`docs/development/req-1301-weekly-review/tasks-and-stories.md`。
+- 需求文档：`docs/ai-workflow/future-development-requirements.md` 的 `REQ-1301`。
+- 开发文档：`docs/ai-workflow/development/req-1301-weekly-review/tasks-and-stories.md`。
 - 代码变更：`pages/calendar/calendar.js`、`pages/calendar/calendar.wxml`、`pages/calendar/calendar.wxss`、`utils/calculations.js`、`utils/date.js`、`pages/share/share.js`、`utils/share-card-renderer.js`。
 
 ## 问题发现 (已修复)

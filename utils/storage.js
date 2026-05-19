@@ -21,6 +21,8 @@ function normalizeSettings(raw) {
   return {
     userId: source.userId || source._id || source._openid || source.openid || source.openId || '',
     nickname: source.nickname || '',
+    avatarUrl: source.avatarUrl || '',
+    showNicknameOnShare: !!source.showNicknameOnShare,
     monthlySalary: source.monthlySalary || '',
     workDaysPerMonth: Number(source.workDaysPerMonth) || constants.DEFAULT_SETTINGS.workDaysPerMonth,
     workHoursPerDay: Number(source.workHoursPerDay) || constants.DEFAULT_SETTINGS.workHoursPerDay,
@@ -388,6 +390,21 @@ function deleteCalmHistoryItem(id) {
   writeStorage(constants.STORAGE_KEYS.CALM_HISTORY, nextHistory)
 }
 
+function getReminderSettings() {
+  var settings = readStorage(constants.STORAGE_KEYS.REMINDER_SETTINGS, constants.DEFAULT_REMINDER_SETTINGS)
+  if (!settings || typeof settings !== 'object') {
+    return constants.DEFAULT_REMINDER_SETTINGS
+  }
+  return Object.assign({}, constants.DEFAULT_REMINDER_SETTINGS, settings)
+}
+
+function saveReminderSettings(settings) {
+  var current = getReminderSettings()
+  var nextSettings = Object.assign({}, current, settings)
+  writeStorage(constants.STORAGE_KEYS.REMINDER_SETTINGS, nextSettings)
+  return nextSettings
+}
+
 function getSettings() {
   return normalizeSettings(readStorage(constants.STORAGE_KEYS.USER_SETTINGS, constants.DEFAULT_SETTINGS))
 }
@@ -532,6 +549,7 @@ function clearAllData() {
   wx.removeStorageSync(constants.STORAGE_KEYS.USER_SETTINGS)
   wx.removeStorageSync(constants.STORAGE_KEYS.CHECKLIST_ITEMS)
   wx.removeStorageSync(constants.STORAGE_KEYS.CALM_HISTORY)
+  wx.removeStorageSync(constants.STORAGE_KEYS.REMINDER_SETTINGS)
   
   // RF-009: Also clear sync queue and status to prevent ghost updates
   wx.removeStorageSync('niuma_pending_sync_queue')
@@ -564,6 +582,8 @@ module.exports = {
   getCalmHistory: getCalmHistory,
   saveCalmHistoryItem: saveCalmHistoryItem,
   deleteCalmHistoryItem: deleteCalmHistoryItem,
+  getReminderSettings: getReminderSettings,
+  saveReminderSettings: saveReminderSettings,
   getSettings: getSettings,
   saveSettings: saveSettings,
   getSyncStatus: getSyncStatus,

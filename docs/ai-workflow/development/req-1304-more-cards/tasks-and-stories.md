@@ -6,7 +6,7 @@
 
 ## 依赖
 
-- 需求文档：`docs/future-development-requirements.md` (REQ-1304)
+- 需求文档：`docs/ai-workflow/future-development-requirements.md` (REQ-1304)
 - 现有页面：`pages/wishes/wishes`, `pages/calm/calm`, `pages/share/share`
 
 ## 子任务

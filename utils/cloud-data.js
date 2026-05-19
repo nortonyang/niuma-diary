@@ -149,6 +149,8 @@ function normalizeSettings(raw) {
     _id: raw._id,
     userId: raw.userId || raw._id || raw._openid || '',
     nickname: raw.nickname || '',
+    avatarUrl: raw.avatarUrl || '',
+    showNicknameOnShare: !!raw.showNicknameOnShare,
     monthlySalary: raw.monthlySalary || '',
     workDaysPerMonth: Number(raw.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(raw.workHoursPerDay) || 8,
@@ -327,6 +329,8 @@ function saveSettings(settings) {
   var payload = {
     userId: settings.userId || '',
     nickname: settings.nickname || '',
+    avatarUrl: settings.avatarUrl || '',
+    showNicknameOnShare: !!settings.showNicknameOnShare,
     monthlySalary: settings.monthlySalary || '',
     workDaysPerMonth: Number(settings.workDaysPerMonth) || 21.75,
     workHoursPerDay: Number(settings.workHoursPerDay) || 8,

@@ -3,6 +3,8 @@ const renderer = require('../../utils/share-card-renderer')
 const shareCode = require('../../utils/share-code')
 const storage = require('../../utils/storage')
 const calculations = require('../../utils/calculations')
+const dateUtil = require('../../utils/date')
+const constants = require('../../utils/constants')
 
 function saveToAlbum(filePath, successTitle) {
   return new Promise(function (resolve, reject) {

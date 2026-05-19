@@ -2,8 +2,8 @@
 
 ## 审核范围
 
-- 规划文档：`docs/development/req-1404-calm-history/plan.md`
-- 需求文档：`docs/future-development-requirements.md`
+- 规划文档：`docs/ai-workflow/development/req-1404-calm-history/plan.md`
+- 需求文档：`docs/ai-workflow/future-development-requirements.md`
 - 实现文件：`pages/calm/calm.js`、`pages/calm/calm.wxml`、`pages/calm/calm.wxss`、`utils/constants.js`、`utils/storage.js`
 
 ## 问题发现
@@ -28,14 +28,15 @@
 - `node --check utils/storage.js`：通过。
 - `node --check utils/constants.js`：通过。
 - `git diff --check`：通过。
+- **微信开发者工具人工验证**：**待进行 (Pending)**。需要后续验证保存历史、列表刷新、删除功能，以及分享页面的隐私脱敏（不展示具体选项）。
 
 ## 完成度更新
 
 | 项目 | 更新前 | 更新后 | 证据 |
 | --- | ---: | ---: | --- |
-| REQ-1404 | 0% | 100% 待审核 | 代码实现、文档更新和本地验证均完成 |
+| REQ-1404 | 0% | 100% 待审核 | 代码实现、文档更新和语法检查完成，人工验证待补。 |
 
 ## 剩余工作
 
-- 尚未在微信开发者工具中做真实 UI 点击验证。
+- **必须动作**：在微信开发者工具中做真实 UI 点击验证（保存、查看、删除、分享）。
 - 当前按规划只做本地历史；云同步如需支持，应另立需求。

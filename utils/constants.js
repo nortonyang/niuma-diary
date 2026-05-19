@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   USER_SETTINGS: 'niuma_user_settings',
   CHECKLIST_ITEMS: 'niuma_checklist_items',
   CALM_HISTORY: 'niuma_calm_history',
+  REMINDER_SETTINGS: 'niuma_reminder_settings',
   SCHEMA_VERSION_INFO: 'niuma_schema_version_info'
 }
 
@@ -14,9 +15,17 @@ const CURRENT_SCHEMA_VERSION = 1
 const DEFAULT_SETTINGS = {
   userId: '',
   nickname: '',
+  avatarUrl: '',
+  showNicknameOnShare: false,
   monthlySalary: '',
   workDaysPerMonth: 21.75,
   workHoursPerDay: 8
+}
+
+const DEFAULT_REMINDER_SETTINGS = {
+  enabled: false,
+  time: '20:00',
+  templateId: 'REPLACE_WITH_YOUR_TEMPLATE_ID'
 }
 
 const MOODS = [
@@ -105,6 +114,7 @@ function findLabel(list, value) {
 module.exports = {
   STORAGE_KEYS: STORAGE_KEYS,
   DEFAULT_SETTINGS: DEFAULT_SETTINGS,
+  DEFAULT_REMINDER_SETTINGS: DEFAULT_REMINDER_SETTINGS,
   MOODS: MOODS,
   REASONS: REASONS,
   WISH_CATEGORIES: WISH_CATEGORIES,

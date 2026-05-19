@@ -7,7 +7,7 @@
 | 1 | 补齐月度统计模型，包含最高指数日期、连续高压最长天数和月度收入 | Gemini | `utils/calculations.js`, `utils/date.js` | `node --check utils/calculations.js` | 已完成 (待审核) |
 | 2 | 在日历页增加月复盘视图或入口，复用现有月份切换 | Gemini | `pages/calendar/calendar.js`, `pages/calendar/calendar.wxml`, `pages/calendar/calendar.wxss` | `node --check pages/calendar/calendar.js`，微信开发者工具人工验证 | 已完成 (待审核) |
 | 3 | 增加月度报告图类型，默认不展示吐槽原文、月薪等敏感内容 | Gemini | `pages/share/share.js`, `pages/share/share.wxml`, `pages/share/share.wxss`, `utils/share-card-config.js`, `utils/share-card-renderer.js` | `node --check pages/share/share.js`，分享卡人工保存验证 | 已完成 (待审核) |
-| 4 | 同步更新需求完成度和本开发目录审核基础材料 | Gemini | `docs/future-development-requirements.md`, `docs/development/req-1302-monthly-review/` | 文档检查 | 已完成 (待审核) |
+| 4 | 同步更新需求完成度和本开发目录审核基础材料 | Gemini | `docs/ai-workflow/future-development-requirements.md`, `docs/ai-workflow/development/req-1302-monthly-review/` | 文档检查 | 已完成 (待审核) |
 
 ## 完成度
 
@@ -43,8 +43,8 @@
 
 事实来源：
 
-- `docs/future-development-requirements.md` 的 `REQ-1302 月复盘`
-- `docs/development/req-1302-monthly-review/implementation-plan.md`
+- `docs/ai-workflow/future-development-requirements.md` 的 `REQ-1302 月复盘`
+- `docs/ai-workflow/development/req-1302-monthly-review/implementation-plan.md`
 - 当前代码：`pages/calendar/`, `pages/share/`, `utils/calculations.js`, `utils/share-card-renderer.js`
 
 实现范围：
@@ -83,8 +83,8 @@
 - `pages/share/share.js`
 - `pages/share/share.wxml`
 - `pages/share/share.wxss`
-- `docs/future-development-requirements.md`
-- `docs/development/req-1302-monthly-review/`
+- `docs/ai-workflow/future-development-requirements.md`
+- `docs/ai-workflow/development/req-1302-monthly-review/`
 
 需要运行的验证：
 

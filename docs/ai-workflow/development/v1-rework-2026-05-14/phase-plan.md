@@ -16,7 +16,7 @@
 
 ## 当前证据
 
-- `docs/future-development-requirements.md` 已新增 `RF-001` 到 `RF-006` 返工标记。
+- `docs/ai-workflow/future-development-requirements.md` 已新增 `RF-001` 到 `RF-006` 返工标记。
 - `pages/today/today.js` 第 179 行调用已不存在的 `buildHolidayCard(now)`。
 - `app.js` 第 8 行在 `wx.cloud.init` 之前调用 `sync.processPendingQueue()`。
 - `utils/storage.js` 的 `normalizeSettings` 没有保留 `updatedAt`。

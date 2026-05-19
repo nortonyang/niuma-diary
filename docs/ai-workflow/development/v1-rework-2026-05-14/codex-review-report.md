@@ -14,7 +14,7 @@
 - `utils/storage.js`
 - `utils/sync.js`
 - `utils/cloud-data.js`
-- `docs/future-development-requirements.md`
+- `docs/ai-workflow/future-development-requirements.md`
 
 ## 问题发现
 

@@ -1,4 +1,5 @@
 const config = require('./share-card-config')
+const storage = require('./storage')
 
 function getImageInfo(src) {
   return new Promise(function (resolve, reject) {
@@ -725,6 +726,9 @@ function renderCalmCard(page, result, pressurePercent) {
 
 function drawSharePoster(page, cardPath, appCodePath) {
   var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+  var settings = storage.getSettings()
+  var showNickname = settings.showNicknameOnShare
+  var posterTitle = showNickname ? ((settings.nickname || '匿名打工人') + ' 的班味状态') : '我的班味状态'
 
   ctx.setFillStyle('#fff7e8')
   ctx.fillRect(0, 0, config.POSTER_WIDTH, config.POSTER_HEIGHT)
@@ -732,10 +736,12 @@ function drawSharePoster(page, cardPath, appCodePath) {
 
   ctx.setFillStyle('#fffdf8')
   ctx.fillRect(0, config.CARD_HEIGHT, config.POSTER_WIDTH, config.POSTER_FOOTER_HEIGHT)
+
   ctx.setFillStyle('#2d2822')
   ctx.setFontSize(28)
   ctx.setTextAlign('left')
-  ctx.fillText('长按识别小程序码', 42, config.CARD_HEIGHT + 64)
+  ctx.fillText(posterTitle, 42, config.CARD_HEIGHT + 64)
+
   ctx.setFillStyle('#6f6254')
   ctx.setFontSize(22)
   ctx.fillText('打开留马日记，先记一下今天的牛马状态', 42, config.CARD_HEIGHT + 104)

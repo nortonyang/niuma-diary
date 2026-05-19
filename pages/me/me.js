@@ -84,6 +84,10 @@ function buildExportPayload(snapshot) {
 Page({
   data: {
     settings: {},
+    reminder: {
+      enabled: false,
+      time: '20:00'
+    },
     avatarSrc: '/assets/images/default-avatar.png',
     profileName: '匿名打工人',
     profileCopy: '数据默认保存在本机，不强制登录。',
@@ -116,14 +120,141 @@ Page({
 
   loadSettings: function () {
     var settings = storage.getSettings()
+    var reminder = storage.getReminderSettings()
     var profileState = buildProfileState(settings)
     var storageState = buildStorageState()
     var syncState = buildSyncState()
     this.setData(Object.assign({
       settings: settings,
+      reminder: reminder,
+      avatarSrc: settings.avatarUrl || '/assets/images/default-avatar.png',
       form: Object.assign({}, settings)
     }, profileState, storageState, syncState))
     this.syncSettingsFromCloud()
+  },
+
+  onChooseAvatar: function (event) {
+    var avatarUrl = event.detail.avatarUrl
+    var self = this
+
+    if (this.data.isCloudEnabled) {
+      wx.showLoading({ title: '正在上传头像...' })
+      // RA-20260519-004: Infer extension from temp path
+      var ext = 'png'
+      var parts = avatarUrl.split('.')
+      if (parts.length > 1) {
+        ext = parts[parts.length - 1].toLowerCase()
+        // Basic safety for common image extensions
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].indexOf(ext) === -1) {
+          ext = 'png'
+        }
+      }
+      var cloudPath = 'avatars/' + Date.now() + '.' + ext
+      wx.cloud.uploadFile({
+        cloudPath: cloudPath,
+        filePath: avatarUrl,
+        success: function (res) {
+          wx.hideLoading()
+          self.updateAvatar(res.fileID)
+        },
+        fail: function (err) {
+          wx.hideLoading()
+          console.error('Upload avatar failed', err)
+          // RA-20260519-004: Don't overwrite existing stable avatar with temp path on fail
+          var currentAvatar = self.data.settings.avatarUrl
+          if (currentAvatar && currentAvatar.indexOf('cloud://') === 0) {
+            wx.showModal({
+              title: '上传失败',
+              content: '头像上传到云端失败，已保留原头像。您可以稍后重试。',
+              showCancel: false
+            })
+          } else {
+            wx.showToast({ title: '上传失败，仅本次预览可用', icon: 'none' })
+            self.previewAvatar(avatarUrl)
+          }
+        }
+      })
+    } else {
+      wx.showToast({ title: '头像仅本次预览，保存需开启云端', icon: 'none' })
+      this.previewAvatar(avatarUrl)
+    }
+  },
+
+  onNicknameOnShareChange: function (event) {
+    this.setData({
+      'form.showNicknameOnShare': event.detail.value
+    })
+  },
+
+  updateAvatar: function (url) {
+    this.setData({
+      avatarSrc: url,
+      'form.avatarUrl': url
+    })
+    // Auto save when avatar changes
+    this.saveSettings()
+  },
+
+  previewAvatar: function (url) {
+    this.setData({
+      avatarSrc: url
+    })
+  },
+
+  onNicknameBlur: function (event) {
+    this.setData({
+      'form.nickname': event.detail.value
+    })
+  },
+
+  onReminderChange: function (event) {
+    var enabled = event.detail.value
+    var self = this
+
+    if (enabled) {
+      // Request subscription message authorization
+      var templateId = storage.getReminderSettings().templateId
+      if (templateId && templateId !== 'REPLACE_WITH_YOUR_TEMPLATE_ID') {
+        wx.requestSubscribeMessage({
+          tmplIds: [templateId],
+          success: function (res) {
+            if (res[templateId] === 'accept') {
+              self.updateReminder({ enabled: true })
+              wx.showToast({ title: '已开启提醒', icon: 'success' })
+            } else {
+              wx.showToast({ title: '授权后才能接收提醒', icon: 'none' })
+              self.setData({ 'reminder.enabled': false })
+            }
+          },
+          fail: function (err) {
+            console.error('Subscribe message failed', err)
+            wx.showToast({ title: '授权失败', icon: 'none' })
+            self.setData({ 'reminder.enabled': false })
+          }
+        })
+      } else {
+        // Fallback if no template ID is configured
+        // RA-20260519-002: Clearly state this is a local preference
+        this.updateReminder({ enabled: true })
+        wx.showToast({ title: '已开启本地提醒偏好', icon: 'success' })
+      }
+    } else {
+      this.updateReminder({ enabled: false })
+      wx.showToast({ title: '已关闭提醒', icon: 'success' })
+    }
+  },
+
+  onReminderTimeChange: function (event) {
+    var time = event.detail.value
+    this.updateReminder({ time: time })
+    wx.showToast({ title: '提醒时间已更新', icon: 'success' })
+  },
+
+  updateReminder: function (patch) {
+    var nextReminder = storage.saveReminderSettings(patch)
+    this.setData({
+      reminder: nextReminder
+    })
   },
 
   retryCloudSync: function () {
@@ -164,6 +295,7 @@ Page({
           this.setData(Object.assign({
             settings: settings,
             form: Object.assign({}, settings),
+            avatarSrc: settings.avatarUrl || '/assets/images/default-avatar.png',
             cloudSyncText: '云端设置已同步'
           }, profileState, storageState))
         }

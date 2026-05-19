@@ -6,7 +6,7 @@
 
 ## 依赖
 
-- 需求文档：`docs/future-development-requirements.md` (REQ-1301)
+- 需求文档：`docs/ai-workflow/future-development-requirements.md` (REQ-1301)
 - 现有页面：`pages/calendar/calendar`
 
 ## 子任务

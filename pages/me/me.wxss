@@ -14,14 +14,21 @@
   box-shadow: 0 16rpx 38rpx rgba(81, 58, 31, 0.08);
 }
 
-.avatar-mark {
+.avatar-wrapper {
   width: 112rpx;
   height: 112rpx;
   flex: 0 0 112rpx;
+  padding: 0;
   overflow: hidden;
   border: 3rpx solid #ffffff;
   border-radius: 22rpx;
+  background: transparent;
   box-shadow: 0 10rpx 22rpx rgba(60, 111, 100, 0.18);
+  line-height: normal;
+}
+
+.avatar-wrapper::after {
+  border: none;
 }
 
 .avatar-image {
@@ -113,6 +120,21 @@
   font-size: 30rpx;
   font-weight: 900;
   line-height: 1.35;
+}
+
+.reminder-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.field-tip {
+  display: block;
+  margin-top: 4rpx;
+  color: #7f7467;
+  font-size: 22rpx;
+  line-height: 1.4;
 }
 
 .settings-row {

@@ -1,8 +1,8 @@
 <view class="page me-page">
   <view class="profile-hero section">
-    <view class="avatar-mark">
+    <button class="avatar-wrapper" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
       <image class="avatar-image" src="{{avatarSrc}}" mode="aspectFill" />
-    </view>
+    </button>
     <view class="profile-main">
       <text class="profile-name">{{profileName}}</text>
       <text class="profile-copy">{{profileCopy}}</text>
@@ -25,7 +25,14 @@
     <text class="section-title">本地设置</text>
     <view class="field">
       <text class="label">昵称</text>
-      <input class="input" value="{{form.nickname}}" maxlength="12" placeholder="可选" bindinput="onNicknameInput" />
+      <input class="input" type="nickname" value="{{form.nickname}}" maxlength="12" placeholder="设置后用于打卡和分享" bindinput="onNicknameInput" bindblur="onNicknameBlur" />
+    </view>
+    <view class="field reminder-field">
+      <view>
+        <text class="label">分享海报展示昵称</text>
+        <text class="field-tip">关闭后，分享海报将使用通用称呼（保护隐私）。</text>
+      </view>
+      <switch checked="{{form.showNicknameOnShare}}" color="#2f6650" bindchange="onNicknameOnShareChange" />
     </view>
     <view class="field">
       <text class="label">月薪</text>
@@ -42,6 +49,23 @@
       </view>
     </view>
     <button class="primary-button save-settings" bindtap="saveSettings">保存设置</button>
+  </view>
+
+  <view class="settings-card section">
+    <text class="section-title">每日打卡提醒</text>
+    <view class="field reminder-field">
+      <view>
+        <text class="label">开启提醒偏好</text>
+        <text class="field-tip">开启后，应用将记录您的提醒偏好。实际推送需完成微信订阅模板配置。</text>
+      </view>
+      <switch checked="{{reminder.enabled}}" color="#2f6650" bindchange="onReminderChange" />
+    </view>
+    <view class="field" wx:if="{{reminder.enabled}}">
+      <text class="label">提醒时间</text>
+      <picker mode="time" value="{{reminder.time}}" bindchange="onReminderTimeChange">
+        <view class="picker-shell">{{reminder.time}}</view>
+      </picker>
+    </view>
   </view>
 
   <view class="shortcut-card section">

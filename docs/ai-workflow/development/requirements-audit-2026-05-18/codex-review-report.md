@@ -2,7 +2,7 @@
 
 ## 审核范围
 
-- 需求文档：`docs/future-development-requirements.md`
+- 需求文档：`docs/ai-workflow/future-development-requirements.md`
 - 周/月复盘与分享卡：`pages/calendar/`, `pages/share/`, `utils/calculations.js`, `utils/share-card-config.js`, `utils/share-card-renderer.js`
 - 愿望与冷静器：`pages/wishes/`, `pages/today/`, `pages/calm/`, `utils/storage.js`, `utils/cloud-data.js`
 - 资源与工程项：`cloudfunctions/`, `assets/images/`
@@ -13,7 +13,7 @@
 | --- | --- | --- | --- | --- |
 | P1 | `REQ-1304` 分享卡主操作路径统一 | `pages/share/share.js` 已更新，所有卡片主按钮现在均走 `sharePoster()` 链路，支持小程序码。 | 已统一所有分享卡路径，并保留降级能力。 | **已修复** |
 | P1 | `REQ-1401` 愿望进度与置顶功能完备 | `pages/wishes/`、`pages/today/` 及 `utils/cloud-data.js` 已补齐 UI、置顶逻辑和云同步字段。 | 已实现状态选择、置顶展示及云端字段同步。 | **已修复** |
-| P2 | `REQ-1301` 文档存在过期返工结论 | `docs/future-development-requirements.md` 0.3 仍记录周复盘分享卡、无月薪隐藏和空状态未完成。 | 标记该返工结论为历史记录。 | **已修复** |
+| P2 | `REQ-1301` 文档存在过期返工结论 | `docs/ai-workflow/future-development-requirements.md` 0.3 仍记录周复盘分享卡、无月薪隐藏和空状态未完成。 | 标记该返工结论为历史记录。 | **已修复** |
 | P2 | 提交前清理 whitespace | `pages/wishes/wishes.js` 存在 trailing whitespace。 | 已清理 trailing whitespace，确保 `git diff --check` 通过。 | **已修复** |
 | P3 | `REQ-2004` 仍需资源体积人工确认 | `assets/images/default-avatar.png` 为 343K。 | 保持“部分完成”，后续压缩。 | 待处理 |
 

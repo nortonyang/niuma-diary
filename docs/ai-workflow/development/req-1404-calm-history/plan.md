@@ -13,7 +13,7 @@
 
 ## 当前证据
 
-- 需求来源：`docs/future-development-requirements.md` 的 `REQ-1404`。
+- 需求来源：`docs/ai-workflow/future-development-requirements.md` 的 `REQ-1404`。
 - 当前页面：`pages/calm/calm.js` 只计算当前结果并跳转分享页，没有保存历史。
 - 当前分享：`pages/calm/calm.js` 的 `shareResult` 只传 `result.title`、`result.copy` 和 `pressurePercent`，未传用户具体选择项。
 - 当前本地存储：`utils/storage.js` 已集中管理打卡、愿望、清单和设置，可新增独立 storage key。
@@ -122,8 +122,8 @@
 
 事实来源：
 
-- `docs/development/req-1404-calm-history/plan.md`
-- `docs/future-development-requirements.md`
+- `docs/ai-workflow/development/req-1404-calm-history/plan.md`
+- `docs/ai-workflow/future-development-requirements.md`
 - `pages/calm/calm.js`
 - `pages/calm/calm.wxml`
 - `pages/calm/calm.wxss`
@@ -151,7 +151,7 @@
 - `pages/calm/calm.js`
 - `pages/calm/calm.wxml`
 - `pages/calm/calm.wxss`
-- `docs/future-development-requirements.md`
+- `docs/ai-workflow/future-development-requirements.md`
 
 Codex 完成后会运行：
 

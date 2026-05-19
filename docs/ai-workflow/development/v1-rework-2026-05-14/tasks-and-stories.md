@@ -6,8 +6,8 @@
 
 ## 依赖
 
-- 总开发阶段文档：`docs/development/v1-rework-2026-05-14/phase-plan.md`
-- 需求状态文档：`docs/future-development-requirements.md`
+- 总开发阶段文档：`docs/ai-workflow/development/v1-rework-2026-05-14/phase-plan.md`
+- 需求状态文档：`docs/ai-workflow/future-development-requirements.md`
 - 云函数部署能力：微信开发者工具中选择云函数根目录并部署。
 
 ## 子任务
@@ -211,7 +211,7 @@
 
 ### 范围
 
-- 更新 `docs/future-development-requirements.md` 中 RF 状态。
+- 更新 `docs/ai-workflow/future-development-requirements.md` 中 RF 状态。
 - 记录验证命令和人工验证结果。
 - 不把未验证的控制台配置项标为代码完成。
 
@@ -222,7 +222,7 @@
 
 ### 实现备注
 
-- 预期改动：`docs/future-development-requirements.md`、本目录审核报告。
+- 预期改动：`docs/ai-workflow/future-development-requirements.md`、本目录审核报告。
 
 ### 验证方式
 
