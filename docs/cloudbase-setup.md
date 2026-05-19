@@ -41,6 +41,8 @@ const CLOUD_CONFIG = {
 ### clearUserData
 提供安全、彻底的云端数据清空能力。该函数在服务端执行，确保仅删除当前用户的数据。
 
+**注意：** 云函数目录下的 `node_modules` 已通过 `.cloudignore` 忽略，请始终选择“云端安装依赖”进行部署，避免上传本地庞大的依赖包。
+
 **部署步骤：**
 1. 在微信开发者工具目录树中，找到 `cloudfunctions/` 文件夹。
 2. 分别右键点击 `getAppCode` 和 `clearUserData`。

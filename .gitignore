@@ -1,6 +1,7 @@
 .DS_Store
 .idea/
 node_modules/
+cloudfunctions/*/node_modules/
 miniprogram_npm/
 dist/
 coverage/
