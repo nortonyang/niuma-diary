@@ -221,3 +221,30 @@
   font-size: 25rpx;
   text-align: center;
 }
+
+.empty-card {
+  padding: 80rpx 40rpx;
+  text-align: center;
+}
+
+.empty-title {
+  display: block;
+  color: #2d2822;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.empty-copy {
+  display: block;
+  margin-top: 10rpx;
+  color: #7f7467;
+  font-size: 25rpx;
+  line-height: 1.55;
+}
+
+.empty-canvas {
+  width: 320rpx;
+  height: 180rpx;
+  margin: 0 auto 20rpx;
+  display: block;
+}

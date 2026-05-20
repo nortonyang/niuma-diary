@@ -29,28 +29,36 @@
     </view>
   </view>
 
-  <view class="stage-block" wx:for="{{stageGroups}}" wx:key="value">
-    <view class="stage-title-row">
-      <view class="stage-title-wrap">
-        <text class="stage-title">{{item.label}}</text>
-        <text class="stage-subtitle">{{item.summaryText}}</text>
+  <block wx:if="{{items.length > 0}}">
+    <view class="stage-block" wx:for="{{stageGroups}}" wx:key="value">
+      <view class="stage-title-row">
+        <view class="stage-title-wrap">
+          <text class="stage-title">{{item.label}}</text>
+          <text class="stage-subtitle">{{item.summaryText}}</text>
+        </view>
+        <text class="stage-count">{{item.done}}/{{item.total}}</text>
       </view>
-      <text class="stage-count">{{item.done}}/{{item.total}}</text>
-    </view>
-    <view class="stage-card">
-      <view
-        wx:for="{{item.items}}"
-        wx:for-item="task"
-        wx:key="id"
-        class="task-row {{task.completedClass}}"
-        data-id="{{task.id}}"
-        bindtap="toggleItem"
-      >
-        <text class="check-box">{{task.checkText}}</text>
-        <text class="task-title">{{task.title}}</text>
-        <text wx:if="{{task.custom}}" class="delete-text" data-id="{{task.id}}" catchtap="deleteItem">删除</text>
+      <view class="stage-card">
+        <view
+          wx:for="{{item.items}}"
+          wx:for-item="task"
+          wx:key="id"
+          class="task-row {{task.completedClass}}"
+          data-id="{{task.id}}"
+          bindtap="toggleItem"
+        >
+          <text class="check-box">{{task.checkText}}</text>
+          <text class="task-title">{{task.title}}</text>
+          <text wx:if="{{task.custom}}" class="delete-text" data-id="{{task.id}}" catchtap="deleteItem">删除</text>
+        </view>
+        <view class="stage-empty" wx:if="{{item.empty}}">这个阶段还没有事项。</view>
       </view>
-      <view class="stage-empty" wx:if="{{item.empty}}">这个阶段还没有事项。</view>
     </view>
+  </block>
+
+  <view class="empty-card section" wx:else>
+    <canvas canvas-id="emptyChecklistCanvas" class="empty-canvas"></canvas>
+    <text class="empty-title">清单还是空的</text>
+    <text class="empty-copy">先把退路拆成具体事项。如果你已经有愿望，可以在愿望页点击“转为清单”。</text>
   </view>
 </view>

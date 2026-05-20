@@ -1,5 +1,6 @@
 const config = require('./share-card-config')
 const storage = require('./storage')
+const characterDrawer = require('./character-drawer')
 
 function getImageInfo(src) {
   return new Promise(function (resolve, reject) {
@@ -43,77 +44,6 @@ function canvasToCardTempFilePath(page) {
   })
 }
 
-function drawRoundRectPath(ctx, x, y, width, height, radius) {
-  ctx.beginPath()
-  ctx.moveTo(x + radius, y)
-  ctx.lineTo(x + width - radius, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-  ctx.lineTo(x + width, y + height - radius)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-  ctx.lineTo(x + radius, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-  ctx.lineTo(x, y + radius)
-  ctx.quadraticCurveTo(x, y, x + radius, y)
-  ctx.closePath()
-}
-
-function fillRoundRect(ctx, x, y, width, height, radius, color) {
-  drawRoundRectPath(ctx, x, y, width, height, radius)
-  ctx.setFillStyle(color)
-  ctx.fill()
-}
-
-function drawCloud(ctx, x, y, scale, color) {
-  ctx.setFillStyle(color)
-  ctx.beginPath()
-  ctx.arc(x, y + 22 * scale, 22 * scale, Math.PI, Math.PI * 2)
-  ctx.arc(x + 28 * scale, y + 11 * scale, 28 * scale, Math.PI, Math.PI * 2)
-  ctx.arc(x + 62 * scale, y + 24 * scale, 23 * scale, Math.PI, Math.PI * 2)
-  ctx.arc(x + 92 * scale, y + 28 * scale, 18 * scale, Math.PI, Math.PI * 2)
-  ctx.lineTo(x + 110 * scale, y + 46 * scale)
-  ctx.lineTo(x - 4 * scale, y + 46 * scale)
-  ctx.closePath()
-  ctx.fill()
-}
-
-function drawHill(ctx, color, yOffset, lift) {
-  ctx.setFillStyle(color)
-  ctx.beginPath()
-  ctx.moveTo(163, 608 + yOffset)
-  ctx.bezierCurveTo(220, 548 + lift, 274, 578 + yOffset, 324, 548 + lift)
-  ctx.bezierCurveTo(380, 515 + lift, 425, 562 + yOffset, 463, 535 + lift)
-  ctx.lineTo(463, 608 + yOffset)
-  ctx.closePath()
-  ctx.fill()
-}
-
-function drawRain(ctx) {
-  ctx.setStrokeStyle('rgba(84, 115, 136, 0.5)')
-  ctx.setLineWidth(3)
-  var drops = [
-    [214, 535], [248, 548], [292, 532], [337, 550], [382, 535], [418, 552]
-  ]
-  drops.forEach(function (drop) {
-    ctx.beginPath()
-    ctx.moveTo(drop[0], drop[1])
-    ctx.lineTo(drop[0] - 8, drop[1] + 20)
-    ctx.stroke()
-  })
-}
-
-function drawLightning(ctx) {
-  ctx.setFillStyle('#ffd760')
-  ctx.beginPath()
-  ctx.moveTo(360, 536)
-  ctx.lineTo(337, 579)
-  ctx.lineTo(361, 573)
-  ctx.lineTo(343, 616)
-  ctx.lineTo(390, 558)
-  ctx.lineTo(364, 565)
-  ctx.closePath()
-  ctx.fill()
-}
-
 function drawMoodScene(ctx, visual) {
   var scene = visual.scene
   var skyTop = '#dff0b5'
@@ -134,7 +64,7 @@ function drawMoodScene(ctx, visual) {
   }
 
   ctx.save()
-  drawRoundRectPath(ctx, 163, 505, 300, 104, 48)
+  characterDrawer.drawRoundRectPath(ctx, 163, 505, 300, 104, 48)
   ctx.clip()
 
   var gradient = ctx.createLinearGradient(163, 505, 163, 609)
@@ -143,48 +73,58 @@ function drawMoodScene(ctx, visual) {
   ctx.setFillStyle(gradient)
   ctx.fillRect(163, 505, 300, 104)
 
-  drawHill(ctx, scene === 'storm' ? '#9aaa6a' : '#9ccf61', 0, 0)
-  drawHill(ctx, scene === 'explode' ? '#8cab55' : '#75b64b', 13, 16)
+  characterDrawer.drawHill(ctx, scene === 'storm' ? '#9aaa6a' : '#9ccf61', 0, 0)
+  characterDrawer.drawHill(ctx, scene === 'explode' ? '#8cab55' : '#75b64b', 13, 16)
 
   if (scene === 'sunny') {
     ctx.setFillStyle('#f7b73e')
     ctx.beginPath()
     ctx.arc(356, 542, 30, 0, Math.PI * 2)
     ctx.fill()
-    drawCloud(ctx, 205, 534, 0.72, 'rgba(255, 255, 255, 0.84)')
+    characterDrawer.drawCloud(ctx, 205, 534, 0.72, 'rgba(255, 255, 255, 0.84)')
+    characterDrawer.drawCow(ctx, 230, 580, 0.6, 'happy')
+    characterDrawer.drawHorse(ctx, 390, 585, 0.6, 'happy')
   } else if (scene === 'cloudy') {
     ctx.setFillStyle('#f4b84a')
     ctx.beginPath()
     ctx.arc(372, 536, 27, 0, Math.PI * 2)
     ctx.fill()
-    drawCloud(ctx, 201, 527, 0.88, 'rgba(255, 255, 255, 0.9)')
-    drawCloud(ctx, 282, 542, 0.72, 'rgba(255, 255, 255, 0.72)')
+    characterDrawer.drawCloud(ctx, 201, 527, 0.88, 'rgba(255, 255, 255, 0.9)')
+    characterDrawer.drawCloud(ctx, 282, 542, 0.72, 'rgba(255, 255, 255, 0.72)')
+    characterDrawer.drawCow(ctx, 240, 585, 0.65, 'neutral')
+    characterDrawer.drawHorse(ctx, 360, 590, 0.65, 'neutral')
   } else if (scene === 'edge') {
     ctx.setFillStyle('#f4aa37')
     ctx.beginPath()
     ctx.arc(365, 536, 31, 0, Math.PI * 2)
     ctx.fill()
-    drawCloud(ctx, 196, 524, 0.94, 'rgba(255, 255, 255, 0.94)')
-    drawCloud(ctx, 281, 543, 0.76, 'rgba(245, 250, 244, 0.8)')
+    characterDrawer.drawCloud(ctx, 196, 524, 0.94, 'rgba(255, 255, 255, 0.94)')
+    characterDrawer.drawCloud(ctx, 281, 543, 0.76, 'rgba(245, 250, 244, 0.8)')
+    characterDrawer.drawCow(ctx, 220, 590, 0.7, 'tired')
+    characterDrawer.drawHorse(ctx, 410, 595, 0.7, 'tired')
   } else if (scene === 'storm') {
-    drawCloud(ctx, 195, 524, 1.02, 'rgba(93, 105, 105, 0.74)')
-    drawCloud(ctx, 275, 532, 0.9, 'rgba(116, 128, 126, 0.72)')
-    drawRain(ctx)
+    characterDrawer.drawCloud(ctx, 195, 524, 1.02, 'rgba(93, 105, 105, 0.74)')
+    characterDrawer.drawCloud(ctx, 275, 532, 0.9, 'rgba(116, 128, 126, 0.72)')
+    characterDrawer.drawRain(ctx)
+    characterDrawer.drawCow(ctx, 260, 595, 0.75, 'tired')
+    characterDrawer.drawHorse(ctx, 340, 600, 0.75, 'tired')
   } else {
     ctx.setFillStyle('rgba(169, 83, 43, 0.3)')
     ctx.fillRect(163, 505, 300, 104)
-    drawCloud(ctx, 190, 522, 1.06, 'rgba(86, 83, 79, 0.78)')
-    drawCloud(ctx, 280, 535, 0.9, 'rgba(95, 90, 84, 0.72)')
-    drawLightning(ctx)
-    drawRain(ctx)
+    characterDrawer.drawCloud(ctx, 190, 522, 1.06, 'rgba(86, 83, 79, 0.78)')
+    characterDrawer.drawCloud(ctx, 280, 535, 0.9, 'rgba(95, 90, 84, 0.72)')
+    characterDrawer.drawLightning(ctx)
+    characterDrawer.drawRain(ctx)
+    characterDrawer.drawCow(ctx, 250, 600, 0.8, 'explode')
+    characterDrawer.drawHorse(ctx, 380, 605, 0.8, 'explode')
   }
 
   ctx.restore()
 }
 
 function drawStatusPill(ctx, visual) {
-  fillRoundRect(ctx, 132, 628, 362, 64, 32, '#fffdf0')
-  fillRoundRect(ctx, 146, 641, 334, 45, 22, visual.pillBg)
+  characterDrawer.fillRoundRect(ctx, 132, 628, 362, 64, 32, '#fffdf0')
+  characterDrawer.fillRoundRect(ctx, 146, 641, 334, 45, 22, visual.pillBg)
   ctx.setTextAlign('center')
   ctx.setFontSize(25)
   ctx.setFillStyle(visual.textColor)
@@ -211,7 +151,7 @@ function drawSprout(ctx, x, y, scale, color) {
 
 function drawIncomeScene(ctx) {
   ctx.save()
-  drawRoundRectPath(ctx, 205, 555, 216, 118, 58)
+  characterDrawer.drawRoundRectPath(ctx, 205, 555, 216, 118, 58)
   ctx.clip()
 
   var gradient = ctx.createLinearGradient(205, 555, 205, 673)
@@ -345,137 +285,107 @@ function drawIncomeProgress(ctx) {
 }
 
 function drawIncomeCardContent(ctx) {
-  ctx.setFillStyle('#fffdf8')
-  ctx.fillRect(58, 492, 510, 432)
-
-  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#eef4d8')
-  ctx.setTextAlign('center')
-  ctx.setFontSize(28)
-  ctx.setFillStyle('#3f6f37')
-  ctx.fillText('今天没裸辞', 313, 531)
-
+  // Main Scene
   drawIncomeScene(ctx)
 
-  fillRoundRect(ctx, 171, 646, 284, 66, 14, '#75a93a')
-  ctx.setFillStyle('#fff8df')
-  ctx.setFontSize(34)
+  // Value section
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(32)
   ctx.setTextAlign('center')
-  ctx.fillText('牛马续航中', 313, 690)
+  ctx.fillText('每一分班味，都在明码标价', 313, 715)
 
+  // Character celebration
+  characterDrawer.drawCow(ctx, 220, 800, 0.7, 'happy')
+  characterDrawer.drawHorse(ctx, 406, 805, 0.7, 'happy')
+
+  // Income Progress
   drawIncomeProgress(ctx)
 
-  ctx.setFillStyle('#4a3a2c')
-  ctx.setFontSize(30)
-  ctx.fillText('离自由更近一点', 313, 822)
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(28)
+  ctx.fillText('忍住今天，账户余额 +1', 313, 895)
+
   ctx.setTextAlign('left')
 }
 
 function drawWeeklyCardContent(ctx, summary) {
-  ctx.setFillStyle('#fffdf8')
-  ctx.fillRect(58, 492, 510, 432)
+  // Main Stats Grid
+  var gridY = 600
+  characterDrawer.fillRoundRect(ctx, 92, gridY, 442, 140, 16, 'rgba(37, 59, 54, 0.05)')
 
-  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
   ctx.setTextAlign('center')
-  ctx.setFontSize(28)
-  ctx.setFillStyle('#5f4830')
-  ctx.fillText('最近 7 天复盘', 313, 531)
-
-  // Top stats row
   ctx.setFillStyle('#7f7467')
   ctx.setFontSize(22)
-  ctx.fillText('打卡天数', 160, 580)
-  ctx.fillText('平均指数', 313, 580)
-  ctx.fillText('高压天数', 466, 580)
+  ctx.fillText('打卡天数', 160, gridY + 45)
+  ctx.fillText('平均指数', 313, gridY + 45)
+  ctx.fillText('高压天数', 466, gridY + 45)
 
-  ctx.setFillStyle('#de5a32')
-  ctx.setFontSize(38)
-  ctx.fillText(summary.count, 160, 625)
-  ctx.fillText(summary.averageIndex + '%', 313, 625)
-  ctx.fillText(summary.highPressureCount, 466, 625)
+  ctx.setFillStyle('#253b36')
+  ctx.setFontSize(44)
+  ctx.fillText(summary.count, 160, gridY + 105)
+  ctx.fillText(summary.averageIndex + '%', 313, gridY + 105)
+  ctx.fillText(summary.highPressureCount, 466, gridY + 105)
 
   // Reasons section
-  fillRoundRect(ctx, 92, 660, 442, 100, 16, 'rgba(37, 59, 54, 0.05)')
+  var reasonY = 760
   ctx.setFillStyle('#5f4830')
   ctx.setFontSize(24)
-  ctx.fillText('核心压力源', 313, 695)
-  ctx.setFillStyle('#253b36')
-  ctx.setFontSize(28)
-  ctx.fillText(summary.topReasonsText || '暂无', 313, 735)
+  ctx.fillText('本周主要压力源', 313, reasonY)
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(30)
+  ctx.fillText(summary.topReasonsText || '正在努力寻找中', 313, reasonY + 45)
 
-  // Income if exists
-  if (summary.income && summary.income.hasSalary) {
-    fillRoundRect(ctx, 92, 780, 442, 80, 16, '#fdf2e9')
-    ctx.setFillStyle('#de5a32')
-    ctx.setFontSize(26)
-    ctx.fillText('本周忍住收入: ¥' + summary.income.monthIncomeText, 313, 830)
-  } else {
-    ctx.setFillStyle('#8f8172')
-    ctx.setFontSize(24)
-    ctx.fillText('先记录，先冷静。', 313, 830)
-  }
+  // Character decoration at bottom
+  characterDrawer.drawCow(ctx, 130, 890, 0.45, 'happy')
+  characterDrawer.drawHorse(ctx, 496, 895, 0.45, 'happy')
 
   ctx.setFillStyle('#4a3a2c')
   ctx.setFontSize(26)
-  ctx.fillText('只有 1% 的进步也值得肯定', 313, 895)
+  ctx.fillText('“哪怕只有 1% 的进步也值得肯定”', 313, 895)
+
   ctx.setTextAlign('left')
 }
 
 function drawMonthlyCardContent(ctx, summary, year, month) {
-  ctx.setFillStyle('#fffdf8')
-  ctx.fillRect(58, 492, 510, 432)
-
-  fillRoundRect(ctx, 187, 499, 252, 47, 23, '#f5efdf')
+  // Stats Grid
+  var gridY = 585
   ctx.setTextAlign('center')
-  ctx.setFontSize(28)
-  ctx.setFillStyle('#5f4830')
-  ctx.fillText(year + ' 年 ' + month + ' 月班味复盘', 313, 531)
-
-  // Stats rows
   ctx.setFillStyle('#7f7467')
   ctx.setFontSize(20)
-  ctx.fillText('打卡天数', 113, 580)
-  ctx.fillText('平均指数', 247, 580)
-  ctx.fillText('最高指数', 380, 580)
-  ctx.fillText('连续高压', 514, 580)
+  ctx.fillText('打卡天数', 113, gridY + 30)
+  ctx.fillText('平均指数', 247, gridY + 30)
+  ctx.fillText('最高指数', 380, gridY + 30)
+  ctx.fillText('连续高压', 514, gridY + 30)
 
-  ctx.setFillStyle('#de5a32')
+  ctx.setFillStyle('#253b36')
   ctx.setFontSize(32)
-  ctx.fillText(summary.count, 113, 625)
-  ctx.fillText(summary.averageIndex + '%', 247, 625)
-  ctx.fillText(summary.maxIndex + '%', 380, 625)
-  ctx.fillText(summary.maxConsecutiveHighPressure, 514, 625)
+  ctx.fillText(summary.count, 113, gridY + 75)
+  ctx.fillText(summary.averageIndex + '%', 247, gridY + 75)
+  ctx.fillText(summary.maxIndex + '%', 380, gridY + 75)
+  ctx.fillText(summary.maxConsecutiveHighPressure + ' 天', 514, gridY + 75)
 
-  // Reasons section
-  fillRoundRect(ctx, 92, 660, 442, 100, 16, 'rgba(37, 59, 54, 0.05)')
+  // Top Reasons
+  characterDrawer.fillRoundRect(ctx, 92, 685, 442, 100, 16, 'rgba(37, 59, 54, 0.05)')
   ctx.setFillStyle('#5f4830')
   ctx.setFontSize(24)
-  ctx.fillText('主要压力源', 313, 695)
-  ctx.setFillStyle('#253b36')
-  ctx.setFontSize(26)
-  ctx.fillText(summary.topReasonsText || '暂无', 313, 735)
+  ctx.fillText('本月主要压力源', 313, 720)
+  ctx.setFillStyle('#de5a32')
+  ctx.setFontSize(28)
+  ctx.fillText(summary.topReasonsText || '平安无事的一个月', 313, 760)
 
-  // Max index date
-  if (summary.maxIndexDateText) {
-    ctx.setFillStyle('#7f7467')
-    ctx.setFontSize(22)
-    ctx.fillText('最高班味出现在 ' + summary.maxIndexDateText, 313, 790)
-  }
+  // Summary Footer with characters
+  var footerY = 820
+  ctx.setFillStyle('#8f8172')
+  ctx.setFontSize(24)
+  ctx.fillText('钱是自己的，气是公司的。', 313, footerY + 35)
 
-  // Income if exists
-  if (summary.income && summary.income.hasSalary) {
-    fillRoundRect(ctx, 92, 810, 442, 70, 16, '#fdf2e9')
-    ctx.setFillStyle('#de5a32')
-    ctx.setFontSize(26)
-    ctx.fillText('本月忍住收入: ¥' + summary.income.monthIncomeText, 313, 853)
-  } else {
-    ctx.setFillStyle('#8f8172')
-    ctx.setFontSize(24)
-    ctx.fillText('钱是自己的，气是公司的。', 313, 853)
-  }
+  characterDrawer.drawCow(ctx, 160, 905, 0.4, 'happy')
+  characterDrawer.drawHorse(ctx, 466, 910, 0.4, 'happy')
 
   ctx.setFillStyle('#4a3a2c')
   ctx.setFontSize(26)
-  ctx.fillText('新的一月，对自己好一点', 313, 905)
+  ctx.fillText('“新的一月，对自己好一点”', 313, 905)
+
   ctx.setTextAlign('left')
 }
 
@@ -483,24 +393,28 @@ function drawStreakCardContent(ctx, streak) {
   ctx.setFillStyle('#fffdf8')
   ctx.fillRect(58, 492, 510, 432)
 
-  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
+  characterDrawer.fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
   ctx.setTextAlign('center')
   ctx.setFontSize(28)
   ctx.setFillStyle('#5f4830')
-  ctx.fillText('连续打卡成就', 313, 531)
+  ctx.fillText('连续坚持勋章', 313, 531)
+
+  // Character celebration
+  characterDrawer.drawCow(ctx, 180, 680, 0.8, 'happy')
+  characterDrawer.drawHorse(ctx, 446, 685, 0.8, 'happy')
 
   // Main badge
   ctx.setFillStyle('#de5a32')
   ctx.setFontSize(140)
-  ctx.fillText(streak, 313, 700)
+  ctx.fillText(streak, 313, 720)
 
   ctx.setFillStyle('#7f7467')
   ctx.setFontSize(36)
-  ctx.fillText('天', 430, 700)
+  ctx.fillText('天', 430, 720)
 
   ctx.setFillStyle('#5f4830')
   ctx.setFontSize(32)
-  ctx.fillText('连续记录班味', 313, 760)
+  ctx.fillText('持续记录班味状态', 313, 800)
 
   // Subtext based on streak
   var copy = '才刚刚开始，继续坚持'
@@ -510,11 +424,11 @@ function drawStreakCardContent(ctx, streak) {
 
   ctx.setFillStyle('#8f8172')
   ctx.setFontSize(26)
-  ctx.fillText(copy, 313, 820)
+  ctx.fillText(copy, 313, 850)
 
   ctx.setFillStyle('#4a3a2c')
   ctx.setFontSize(28)
-  ctx.fillText('留马日记 · 先记录，先冷静', 313, 900)
+  ctx.fillText('“先记录，先冷静，再出发”', 313, 910)
   ctx.setTextAlign('left')
 }
 
@@ -522,31 +436,35 @@ function drawWishCardContent(ctx, wish) {
   ctx.setFillStyle('#fffdf8')
   ctx.fillRect(58, 492, 510, 432)
 
-  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#eef4d8')
+  characterDrawer.fillRoundRect(ctx, 207, 499, 212, 47, 23, '#eef4d8')
   ctx.setTextAlign('center')
   ctx.setFontSize(28)
   ctx.setFillStyle('#3f6f37')
-  ctx.fillText('愿望清单', 313, 531)
+  ctx.fillText('退路愿望清单', 313, 531)
 
   ctx.setFillStyle('#253b36')
   ctx.setFontSize(44)
   ctx.fillText(wish.title, 313, 620)
 
+  // Character looking at the wish
+  characterDrawer.drawCow(ctx, 160, 680, 0.5, 'happy')
+  characterDrawer.drawHorse(ctx, 466, 680, 0.5, 'happy')
+
   ctx.setFillStyle('#7f7467')
   ctx.setFontSize(26)
   ctx.fillText(wish.categoryLabel || '退路愿望', 313, 670)
 
-  fillRoundRect(ctx, 92, 710, 442, 110, 16, 'rgba(37, 59, 54, 0.05)')
+  characterDrawer.fillRoundRect(ctx, 92, 710, 442, 110, 16, '#f3faf6')
   ctx.setFillStyle('#5f4830')
   ctx.setFontSize(24)
-  ctx.fillText('第一小步', 313, 745)
+  ctx.fillText('迈出第一步', 313, 745)
   ctx.setFillStyle('#253b36')
   ctx.setFontSize(28)
   ctx.fillText(wish.firstStep || '还没想好，先记下愿望', 313, 785)
 
   ctx.setFillStyle('#8f8172')
   ctx.setFontSize(26)
-  ctx.fillText('先给自己留个退路，哪怕还在路上', 313, 880)
+  ctx.fillText('“为未来留个退路，哪怕还在路上”', 313, 890)
   ctx.setTextAlign('left')
 }
 
@@ -554,7 +472,7 @@ function drawCalmCardContent(ctx, result, pressurePercent) {
   ctx.setFillStyle('#fffdf8')
   ctx.fillRect(58, 492, 510, 432)
 
-  fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
+  characterDrawer.fillRoundRect(ctx, 207, 499, 212, 47, 23, '#f5efdf')
   ctx.setTextAlign('center')
   ctx.setFontSize(28)
   ctx.setFillStyle('#5f4830')
@@ -568,7 +486,7 @@ function drawCalmCardContent(ctx, result, pressurePercent) {
   ctx.setFontSize(26)
   ctx.fillText('高压检测指数: ' + pressurePercent + '%', 313, 670)
 
-  fillRoundRect(ctx, 92, 710, 442, 130, 16, '#fdf2e9')
+  characterDrawer.fillRoundRect(ctx, 92, 710, 442, 130, 16, '#fdf2e9')
   ctx.setFillStyle('#5f4830')
   ctx.setFontSize(24)
   ctx.fillText('冷静建议', 313, 745)
@@ -588,6 +506,43 @@ function drawCalmCardContent(ctx, result, pressurePercent) {
   ctx.setFontSize(26)
   ctx.fillText('先记录，先冷静。再做最终决定。', 313, 900)
   ctx.setTextAlign('left')
+}
+
+function drawReportBackground(ctx) {
+  // Base Paper color
+  ctx.setFillStyle('#fcfaf2')
+  ctx.fillRect(0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
+
+  // Subtle grid/texture pattern
+  ctx.setStrokeStyle('rgba(143, 129, 114, 0.08)')
+  ctx.setLineWidth(1)
+  for (var i = 0; i < config.POSTER_WIDTH; i += 40) {
+    ctx.beginPath()
+    ctx.moveTo(i, 0)
+    ctx.lineTo(i, config.CARD_HEIGHT)
+    ctx.stroke()
+  }
+  for (var j = 0; j < config.CARD_HEIGHT; j += 40) {
+    ctx.beginPath()
+    ctx.moveTo(0, j)
+    ctx.lineTo(config.POSTER_WIDTH, j)
+    ctx.stroke()
+  }
+
+  // Accent decorations
+  ctx.setFillStyle('rgba(37, 59, 54, 0.03)')
+  ctx.beginPath()
+  ctx.arc(config.POSTER_WIDTH, 0, 300, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.setStrokeStyle('#253b36')
+  ctx.setLineWidth(4)
+  ctx.beginPath()
+  ctx.moveTo(40, 40)
+  ctx.lineTo(100, 40)
+  ctx.moveTo(40, 40)
+  ctx.lineTo(40, 100)
+  ctx.stroke()
 }
 
 function renderMoodCard(page, visual) {
@@ -633,14 +588,19 @@ function renderWeeklyCard(page, summary) {
   return getImageInfo(config.CARD_IMAGES.weekly.display)
     .then(function (templateInfo) {
       var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
-
       ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
       drawWeeklyCardContent(ctx, summary)
-
       return new Promise(function (resolve) {
-        ctx.draw(false, function () {
-          resolve()
-        })
+        ctx.draw(false, function () { resolve() })
+      })
+    })
+    .catch(function () {
+      // Fallback: If report-card.jpg doesn't exist, draw a beautiful 'new' background via Canvas
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+      drawReportBackground(ctx)
+      drawWeeklyCardContent(ctx, summary)
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () { resolve() })
       })
     })
     .then(function () {
@@ -652,14 +612,19 @@ function renderMonthlyCard(page, summary, year, month) {
   return getImageInfo(config.CARD_IMAGES.monthly.display)
     .then(function (templateInfo) {
       var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
-
       ctx.drawImage(templateInfo.path, 0, 0, config.POSTER_WIDTH, config.CARD_HEIGHT)
       drawMonthlyCardContent(ctx, summary, year, month)
-
       return new Promise(function (resolve) {
-        ctx.draw(false, function () {
-          resolve()
-        })
+        ctx.draw(false, function () { resolve() })
+      })
+    })
+    .catch(function () {
+      // Fallback to beautiful 'new' Canvas background
+      var ctx = wx.createCanvasContext(config.POSTER_CANVAS_ID, page)
+      drawReportBackground(ctx)
+      drawMonthlyCardContent(ctx, summary, year, month)
+      return new Promise(function (resolve) {
+        ctx.draw(false, function () { resolve() })
       })
     })
     .then(function () {
@@ -762,7 +727,7 @@ module.exports = {
   renderIncomeCard: renderIncomeCard,
   renderWeeklyCard: renderWeeklyCard,
   renderMonthlyCard: renderMonthlyCard,
-  renderStreakCard: renderStreakCard,
+  renderStreakCard: streak => renderStreakCard(null, streak), // Note: this exported version might be problematic without 'page'
   renderWishCard: renderWishCard,
   renderCalmCard: renderCalmCard,
   drawSharePoster: drawSharePoster

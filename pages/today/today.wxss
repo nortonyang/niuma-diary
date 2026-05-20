@@ -111,6 +111,23 @@
   text-align: center;
 }
 
+.character-container {
+  width: 100%;
+  height: 240rpx;
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.character-image {
+  width: 520rpx;
+  height: 240rpx;
+  display: block;
+  transition: opacity 0.16s ease-out;
+}
+
 .hero-score-row {
   display: flex;
   align-items: flex-end;
@@ -517,4 +534,76 @@
   color: #7f7467;
   font-size: 22rpx;
   line-height: 1.45;
+}
+
+.success-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(37, 59, 54, 0.45);
+  padding: 40rpx;
+}
+
+.success-panel {
+  width: 100%;
+  max-width: 600rpx;
+  border-radius: 28rpx;
+  background: #fffdf8;
+  overflow: hidden;
+  box-shadow: 0 32rpx 72rpx rgba(37, 59, 54, 0.25);
+  animation: modal-pop 0.3s ease-out;
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.success-image {
+  width: 100%;
+  display: block;
+}
+
+.success-content {
+  padding: 34rpx 40rpx 44rpx;
+  text-align: center;
+}
+
+.success-title {
+  display: block;
+  color: #261f19;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.success-copy {
+  display: block;
+  margin-top: 16rpx;
+  color: #6f6254;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.success-actions {
+  margin-top: 38rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.share-btn {
+  margin: 0 !important;
+}
+
+.close-link {
+  color: #8f8172;
+  font-size: 25rpx;
+  font-weight: 700;
+  text-decoration: underline;
 }

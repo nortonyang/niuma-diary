@@ -7,6 +7,13 @@ const holidays = require('../../utils/holidays')
 const sync = require('../../utils/sync')
 
 const QUICK_REASON_VALUES = ['low_salary', 'overtime', 'boss', 'commute']
+const CHARACTER_IMAGES = {
+  relaxed: '/assets/images/characters/today-character-relaxed.png',
+  neutral: '/assets/images/characters/today-character-neutral.png',
+  tired: '/assets/images/characters/today-character-tired.png',
+  angry: '/assets/images/characters/today-character-angry.png',
+  explode: '/assets/images/characters/today-character-explode.png'
+}
 
 function formatHeaderDate(dateText) {
   return dateUtil.formatHeaderDateWithLunar(dateText)
@@ -58,6 +65,15 @@ function buildHeroLine(quitIndex, mood) {
   return '今天还能稳住'
 }
 
+function getCharacterImage(quitIndex) {
+  var index = Number(quitIndex) || 0
+  if (index >= 90) return CHARACTER_IMAGES.explode
+  if (index >= 75) return CHARACTER_IMAGES.angry
+  if (index >= 55) return CHARACTER_IMAGES.tired
+  if (index >= 30) return CHARACTER_IMAGES.neutral
+  return CHARACTER_IMAGES.relaxed
+}
+
 function buildReasonSummary(selectedReasons) {
   if (!selectedReasons || !selectedReasons.length) {
     return '可多选'
@@ -102,6 +118,7 @@ Page({
     dailyCopy: '',
     heroLine: '',
     quitIndex: 50,
+    currentCharacterImage: CHARACTER_IMAGES.neutral,
     mood: 'annoyed',
     moods: buildMoodOptions('annoyed'),
     quickReasons: buildReasonList(QUICK_REASON_VALUES, []),
@@ -130,6 +147,8 @@ Page({
     draftStatusText: '',
     cloudSyncText: '',
     showCountdownModal: false,
+    showSuccessModal: false,
+    successImage: '/assets/images/share-cards/success_cheer.jpg',
     countdownItems: [],
     holidayCardTitle: '离最近假期还有',
     holidayCardValue: '',
@@ -192,6 +211,7 @@ Page({
       dailyCopy: pickDailyCopy(today),
       heroLine: buildHeroLine(quitIndex, mood),
       quitIndex: quitIndex,
+      currentCharacterImage: getCharacterImage(quitIndex),
       mood: mood,
       moods: buildMoodOptions(mood),
       selectedReasons: selectedReasons,
@@ -372,12 +392,19 @@ Page({
     })
   },
 
+  closeSuccessModal: function () {
+    this.setData({
+      showSuccessModal: false
+    })
+  },
+
   noop: function () {},
 
   onIndexChanging: function (event) {
     var quitIndex = Number(event.detail.value) || 0
     this.setData({
       quitIndex: quitIndex,
+      currentCharacterImage: getCharacterImage(quitIndex),
       heroLine: buildHeroLine(quitIndex, this.data.mood)
     })
   },
@@ -386,6 +413,7 @@ Page({
     var quitIndex = Number(event.detail.value) || 0
     this.setData({
       quitIndex: quitIndex,
+      currentCharacterImage: getCharacterImage(quitIndex),
       heroLine: buildHeroLine(quitIndex, this.data.mood)
     })
     this.persistDraft()
@@ -491,11 +519,18 @@ Page({
     })
 
     wx.showToast({
-      title: '已保存本机',
+      title: '已保存',
       icon: 'success'
     })
 
-    // 3. Trigger cloud sync if enabled
+    // 4. Show success cheer modal
+    setTimeout(function() {
+      this.setData({
+        showSuccessModal: true
+      })
+    }.bind(this), 500)
+
+    // 5. Trigger cloud sync if enabled
     if (cloudData.isCloudEnabled()) {
       sync.syncRecord(record)
         .then(function (res) {

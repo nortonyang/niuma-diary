@@ -68,6 +68,7 @@
       </block>
       <block wx:else>
         <view class="empty-month-placeholder">
+          <canvas canvas-id="emptyMonthCanvas" class="empty-canvas"></canvas>
           <text class="empty-copy">这个月还没有记录，打卡后开启月度统计。</text>
         </view>
       </block>
@@ -166,6 +167,7 @@
       </block>
       <block wx:else>
         <view class="empty-report">
+          <canvas canvas-id="emptyWeekCanvas" class="empty-canvas"></canvas>
           <text class="empty-title">最近 7 天没有打卡</text>
           <text class="empty-copy">本周还没开始记录班味，去首页打个卡吧。</text>
           <button class="primary-button" bindtap="goToToday">去打卡</button>

@@ -2,6 +2,7 @@ const constants = require('../../utils/constants')
 const storage = require('../../utils/storage')
 const cloudData = require('../../utils/cloud-data')
 const sync = require('../../utils/sync')
+const characterDrawer = require('../../utils/character-drawer')
 
 function buildStageGroups(items) {
   return constants.CHECKLIST_STAGES.map(function (stage) {
@@ -59,6 +60,19 @@ Page({
 
   onShow: function () {
     this.loadItems()
+    this.drawEmptyState()
+  },
+
+  drawEmptyState: function () {
+    if (this.data.items.length > 0) return
+
+    var ctx = wx.createCanvasContext('emptyChecklistCanvas', this)
+    ctx.setFillStyle('rgba(37, 59, 54, 0.03)')
+    characterDrawer.drawRoundRectPath(ctx, 40, 70, 100, 15, 8)
+    ctx.fill()
+    characterDrawer.drawCow(ctx, 60, 65, 0.8, 'happy')
+    characterDrawer.drawHorse(ctx, 130, 70, 0.8, 'happy')
+    ctx.draw()
   },
 
   loadItems: function () {

@@ -254,3 +254,10 @@
 .generator-list .field {
   margin-bottom: 16rpx;
 }
+
+.empty-canvas {
+  width: 320rpx;
+  height: 180rpx;
+  margin: 0 auto 20rpx;
+  display: block;
+}

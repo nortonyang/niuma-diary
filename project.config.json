@@ -45,5 +45,8 @@
     },
     "condition": {},
     "projectArchitecture": "multiPlatform",
-    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
+    "simulatorPluginLibVersion": {
+        "wxext14566970e7e9f62": "2.27.3"
+    }
 }

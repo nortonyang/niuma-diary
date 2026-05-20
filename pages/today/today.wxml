@@ -21,6 +21,10 @@
       <text class="hero-badge">{{savedLabel}}</text>
     </view>
 
+    <view class="character-container">
+      <image class="character-image" src="{{currentCharacterImage}}" mode="aspectFit" />
+    </view>
+
     <view class="hero-score-row">
       <text class="hero-score">{{quitIndex}}%</text>
       <view class="hero-copy-wrap">
@@ -166,6 +170,20 @@
           <text class="countdown-item-title">{{item.title}}</text>
           <text class="countdown-item-value">{{item.value}}</text>
           <text class="countdown-item-hint">{{item.hint}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="success-mask" wx:if="{{showSuccessModal}}" bindtap="closeSuccessModal">
+    <view class="success-panel" catchtap="noop">
+      <image class="success-image" src="{{successImage}}" mode="widthFix" />
+      <view class="success-content">
+        <text class="success-title">打卡成功！</text>
+        <text class="success-copy">今天也辛苦了，牛马主角陪你一起撑过今天。</text>
+        <view class="success-actions">
+          <button class="primary-button share-btn" data-type="index" bindtap="openShare">生成今日指数卡</button>
+          <text class="close-link" bindtap="closeSuccessModal">直接关闭</text>
         </view>
       </view>
     </view>

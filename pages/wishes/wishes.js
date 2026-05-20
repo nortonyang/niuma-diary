@@ -2,6 +2,7 @@ const constants = require('../../utils/constants')
 const storage = require('../../utils/storage')
 const cloudData = require('../../utils/cloud-data')
 const sync = require('../../utils/sync')
+const characterDrawer = require('../../utils/character-drawer')
 
 function categoryIndex(value) {
   var index = constants.WISH_CATEGORIES.findIndex(function (item) {
@@ -66,6 +67,19 @@ Page({
 
   onShow: function () {
     this.loadWishes()
+    this.drawEmptyState()
+  },
+
+  drawEmptyState: function () {
+    if (this.data.wishes.length > 0) return
+
+    var ctx = wx.createCanvasContext('emptyWishCanvas', this)
+    ctx.setFillStyle('rgba(37, 59, 54, 0.03)')
+    characterDrawer.drawRoundRectPath(ctx, 40, 70, 100, 15, 8)
+    ctx.fill()
+    characterDrawer.drawCow(ctx, 55, 65, 0.8, 'happy')
+    characterDrawer.drawHorse(ctx, 125, 70, 0.8, 'happy')
+    ctx.draw()
   },
 
   loadWishes: function () {

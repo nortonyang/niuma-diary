@@ -477,3 +477,15 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.empty-canvas {
+  width: 320rpx;
+  height: 180rpx;
+  margin: 0 auto 20rpx;
+  display: block;
+}
+
+.empty-month-placeholder {
+  padding: 80rpx 40rpx;
+  text-align: center;
+}

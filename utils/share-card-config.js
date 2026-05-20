@@ -4,20 +4,20 @@ const constants = require('./constants')
 
 const CARD_IMAGES = {
   mood: {
-    display: '../../assets/images/share-cards/mood-card.jpg',
-    file: '/assets/images/share-cards/mood-card.jpg'
+    display: '../../assets/images/share-cards/mood-index-card.jpg',
+    file: '/assets/images/share-cards/mood-index-card.jpg'
   },
   income: {
     display: '../../assets/images/share-cards/income-card.jpg',
     file: '/assets/images/share-cards/income-card.jpg'
   },
   weekly: {
-    display: '../../assets/images/share-cards/mood-card-template.jpg',
-    file: '/assets/images/share-cards/mood-card-template.jpg'
+    display: '../../assets/images/share-cards/week-review-card.jpg',
+    file: '/assets/images/share-cards/week-review-card.jpg'
   },
   monthly: {
-    display: '../../assets/images/share-cards/mood-card-template.jpg',
-    file: '/assets/images/share-cards/mood-card-template.jpg'
+    display: '../../assets/images/share-cards/month-review-card.jpg',
+    file: '/assets/images/share-cards/month-review-card.jpg'
   },
   streak: {
     display: '../../assets/images/share-cards/mood-card-template.jpg',
@@ -34,8 +34,8 @@ const CARD_IMAGES = {
 }
 
 const MOOD_TEMPLATE_IMAGE = {
-  display: '../../assets/images/share-cards/mood-card-template.jpg',
-  file: '/assets/images/share-cards/mood-card-template.jpg'
+  display: '../../assets/images/share-cards/mood-index-card.jpg',
+  file: '/assets/images/share-cards/mood-index-card.jpg'
 }
 
 const MOOD_BUTTON_IMAGE = {
@@ -123,7 +123,11 @@ function buildTypeState(type) {
   var isStreak = type === 'streak'
   var isWish = type === 'wish'
   var isCalm = type === 'calm'
-  var card = isIncome ? CARD_IMAGES.income : ((isWeekly || isMonthly || isStreak || isWish || isCalm) ? CARD_IMAGES.weekly : MOOD_TEMPLATE_IMAGE)
+  var card = MOOD_TEMPLATE_IMAGE
+  if (isIncome) card = CARD_IMAGES.income
+  else if (isWeekly) card = CARD_IMAGES.weekly
+  else if (isMonthly) card = CARD_IMAGES.monthly
+  else if (isStreak || isWish || isCalm) card = CARD_IMAGES.weekly // Fallback for other special cards
   var moodRecord = getTodayMoodRecord()
   var moodIndex = clampIndex(moodRecord.quitIndex)
   var moodVisual = getMoodVisualState(moodIndex)

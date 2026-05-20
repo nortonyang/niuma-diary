@@ -35,6 +35,7 @@
   </view>
 
   <view class="empty-card section" wx:else>
+    <canvas canvas-id="emptyWishCanvas" class="empty-canvas"></canvas>
     <text class="empty-title">还没有愿望</text>
     <text class="empty-copy">可以先写“睡到自然醒一周”，也可以写“准备转行三个月”。</text>
   </view>

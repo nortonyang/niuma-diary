@@ -2,6 +2,7 @@ const constants = require('../../utils/constants')
 const storage = require('../../utils/storage')
 const dateUtil = require('../../utils/date')
 const calculations = require('../../utils/calculations')
+const characterDrawer = require('../../utils/character-drawer')
 
 function enrichRecord(record) {
   if (!record) return null
@@ -49,6 +50,25 @@ Page({
     })
     this.renderCalendar()
     this.renderWeeklySummary()
+    this.drawEmptyStates()
+  },
+
+  drawEmptyStates: function () {
+    if (this.data.activeTab === 'month' && this.data.summary.count === 0) {
+      this.drawRestingCharacters('emptyMonthCanvas')
+    } else if (this.data.activeTab === 'week' && this.data.weeklySummary.count === 0) {
+      this.drawRestingCharacters('emptyWeekCanvas')
+    }
+  },
+
+  drawRestingCharacters: function (canvasId) {
+    var ctx = wx.createCanvasContext(canvasId, this)
+    ctx.setFillStyle('rgba(37, 59, 54, 0.03)')
+    characterDrawer.drawRoundRectPath(ctx, 30, 60, 100, 15, 8)
+    ctx.fill()
+    characterDrawer.drawCow(ctx, 45, 55, 0.8, 'sleepy')
+    characterDrawer.drawHorse(ctx, 115, 60, 0.8, 'sleepy')
+    ctx.draw()
   },
 
   renderCalendar: function () {
@@ -99,6 +119,9 @@ Page({
     this.setData({
       activeTab: tab
     })
+    setTimeout(function () {
+      this.drawEmptyStates()
+    }.bind(this), 50)
   },
 
   prevMonth: function () {
