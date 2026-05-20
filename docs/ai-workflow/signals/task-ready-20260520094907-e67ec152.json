@@ -1,0 +1,42 @@
+{
+  "signal_id": "task-ready-20260520094907-e67ec152",
+  "type": "task_ready",
+  "status": "accepted",
+  "created_at": "2026-05-20T01:49:07+00:00",
+  "projectId": "niuma-diary",
+  "workspace_root": "/Users/nortonyang/Projects/niuma-diary",
+  "workflow_root": "docs/ai-workflow",
+  "taskId": "TASK-20260520-complete-non-final-requirements",
+  "taskIds": [
+    "TASK-20260520-complete-non-final-requirements"
+  ],
+  "task_files": [
+    "docs/ai-workflow/tasks/working/TASK-20260520-complete-non-final-requirements.md"
+  ],
+  "missing_task_ids": [],
+  "jobs": [
+    {
+      "job_id": "TASK-20260520-complete-non-final-requirements-20260520094907-02b4daf7",
+      "projectId": "niuma-diary",
+      "taskId": "TASK-20260520-complete-non-final-requirements",
+      "status": "queued",
+      "dispatch_status": "pending",
+      "workspace": "/Users/nortonyang/Projects/niuma-diary",
+      "workflow_dir": "docs/ai-workflow",
+      "task_file": "docs/ai-workflow/tasks/working/TASK-20260520-complete-non-final-requirements.md",
+      "status_file": "docs/ai-workflow/jobs/TASK-20260520-complete-non-final-requirements-20260520094907-02b4daf7/status.json",
+      "status_file_abs": "/Users/nortonyang/Projects/niuma-diary/docs/ai-workflow/jobs/TASK-20260520-complete-non-final-requirements-20260520094907-02b4daf7/status.json",
+      "signal_id": "task-ready-20260520094907-e67ec152",
+      "created_at": "2026-05-20T01:49:07+00:00",
+      "updated_at": "2026-05-20T01:49:07+00:00"
+    }
+  ],
+  "files": [
+    "docs/ai-workflow/tasks/todo/TASK-20260520-complete-non-final-requirements.md",
+    "docs/ai-workflow/future-development-requirements.md",
+    "docs/ai-workflow/rework-required-2026-05-19.md"
+  ],
+  "message": "请按任务文档复核并开发所有未最终闭环需求。当前总表没有明确未完成/部分完成项，重点处理已完成待审核和需人工确认项：先复核，发现代码缺口才开发；外部控制台或真机事项请列为人工确认，不要伪造完成。完成后回传变更文件、每项结论、验证结果和新增/更新的 docs/ai-workflow 复核报告。",
+  "gemini_started": false,
+  "dispatch_required": true
+}
