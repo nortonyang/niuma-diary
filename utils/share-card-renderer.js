@@ -727,7 +727,7 @@ module.exports = {
   renderIncomeCard: renderIncomeCard,
   renderWeeklyCard: renderWeeklyCard,
   renderMonthlyCard: renderMonthlyCard,
-  renderStreakCard: streak => renderStreakCard(null, streak), // Note: this exported version might be problematic without 'page'
+  renderStreakCard: renderStreakCard,
   renderWishCard: renderWishCard,
   renderCalmCard: renderCalmCard,
   drawSharePoster: drawSharePoster
