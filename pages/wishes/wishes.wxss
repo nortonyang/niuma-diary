@@ -255,9 +255,10 @@
   margin-bottom: 16rpx;
 }
 
-.empty-canvas {
-  width: 320rpx;
-  height: 180rpx;
+.empty-image {
+  width: 100%;
+  max-width: 560rpx;
+  border-radius: 28rpx;
   margin: 0 auto 20rpx;
   display: block;
 }
