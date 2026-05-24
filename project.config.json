@@ -43,10 +43,23 @@
         "ignoreUploadUnusedFiles": true,
         "condition": true
     },
+    "packOptions": {
+        "ignore": [
+            {
+                "type": "folder",
+                "value": "docs"
+            },
+            {
+                "type": "folder",
+                "value": "scripts"
+            },
+            {
+                "type": "file",
+                "value": ".DS_Store"
+            }
+        ]
+    },
     "condition": {},
     "projectArchitecture": "multiPlatform",
-    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
-    "simulatorPluginLibVersion": {
-        "wxext14566970e7e9f62": "2.27.3"
-    }
+    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

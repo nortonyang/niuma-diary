@@ -1,6 +1,6 @@
 ---
 taskId: TASK-20260520-fix-req1601-1602-review-findings
-status: todo
+status: done
 phase: req1601-req1602-review-rework
 createdAt: 2026-05-20T00:00:00+08:00
 focusFiles:
